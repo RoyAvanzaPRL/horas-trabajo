@@ -12,6 +12,7 @@ private const val ANCHO_IMG = 1080
 private const val MARGEN = 32f
 private const val ALTURA_LINEA = 40f
 private const val ALTURA_LINEA_TITULO = 56f
+private const val ALTURA_PIE = 50f
 private const val CALIDAD_JPEG = 92
 
 object JpegExporter {
@@ -22,8 +23,9 @@ object JpegExporter {
         val paintNormal = Paint().apply { textSize = 26f; color = Color.BLACK; isAntiAlias = true }
         val paintNegrita = Paint().apply { textSize = 26f; isFakeBoldText = true; color = Color.BLACK; isAntiAlias = true }
         val paintTitulo = Paint().apply { textSize = 34f; isFakeBoldText = true; color = Color.BLACK; isAntiAlias = true }
+        val paintPie = Paint().apply { textSize = 20f; color = Color.GRAY; isAntiAlias = true }
 
-        val alturaTotal = (MARGEN * 2 + filas.sumOf {
+        val alturaTotal = (MARGEN * 2 + ALTURA_PIE + filas.sumOf {
             (if (it.estilo == EstiloFila.TITULO) ALTURA_LINEA_TITULO else ALTURA_LINEA).toDouble()
         }).toInt()
 
@@ -46,6 +48,8 @@ object JpegExporter {
             }
             y += alturaFila
         }
+
+        canvas.drawText(PIE_DE_MARCA, MARGEN, y + ALTURA_PIE / 2, paintPie)
 
         FileOutputStream(archivoDestino).use { salida ->
             bitmap.compress(Bitmap.CompressFormat.JPEG, CALIDAD_JPEG, salida)

@@ -5,6 +5,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.horastrabajo.app.HorasTrabajoApp
+import com.horastrabajo.app.ui.ajustes.AjustesViewModel
+import com.horastrabajo.app.ui.anio.AnioViewModel
 import com.horastrabajo.app.ui.entrada.EntradaFormViewModel
 import com.horastrabajo.app.ui.mes.MesViewModel
 import com.horastrabajo.app.ui.resumen.ResumenViewModel
@@ -19,7 +21,13 @@ object AppViewModelProvider {
 
     val Factory = viewModelFactory {
         initializer {
-            TrabajosViewModel(horasTrabajoApp().trabajoRepository, horasTrabajoApp().jsonBackupManager)
+            TrabajosViewModel(horasTrabajoApp().trabajoRepository)
+        }
+        initializer {
+            AjustesViewModel(horasTrabajoApp().themePreferenceRepository, horasTrabajoApp().jsonBackupManager)
+        }
+        initializer {
+            AnioViewModel(horasTrabajoApp().trabajoRepository)
         }
         initializer {
             MesViewModel(

@@ -27,6 +27,22 @@ propio `local.properties` apuntando a tu SDK local (no está versionado, ver
 `.gitignore`). No hace falta gradle wrapper manual — Android Studio lo gestiona
 al sincronizar.
 
+Repo publicado en `https://github.com/RoyAvanzaPRL/horas-trabajo` (público).
+
+**Segunda ronda de features implementada (2026-07-24)**, tras sesión `/grill-me`:
+tema claro/oscuro con selector manual (DataStore Preferences), pantalla de
+Ajustes (tema + backup JSON, movido desde el menú de "Mis Trabajos"), campo
+obligatorio `nombreUsuario` por Trabajo (con migración Room 1→2,
+`ALTER TABLE ... DEFAULT ''`, y capacidad de editar un Trabajo ya creado), ese
+nombre + pie de marca "Horas Trabajo — hecho por RoyPM" en el PDF/JPEG
+exportado, y nueva navegación Trabajo → **AnioScreen** (año con flechas ◀▶ +
+grid 3×4 de meses, mes actual resaltado) → MesScreen. Verificado compilando
+(`assembleDebug` con BUILD SUCCESSFUL, incluyendo el schema v2 exportado por
+Room) con el mismo JDK/SDK temporales. Un error real corregido en el camino:
+`Icons.Filled.ChevronLeft/ChevronRight` no existen en el set básico de iconos
+(harían falta `material-icons-extended`, pesado) — se sustituyó por texto
+"‹"/"›", igual que el patrón ya usado en `MesScreen` para cambiar de mes.
+
 ## Decisiones — app de registro de horas de trabajo
 
 Cerradas en sesión(es) `/grill-me` (2026-07-24):
@@ -119,3 +135,37 @@ Cerradas en sesión(es) `/grill-me` (2026-07-24):
 ### Pendiente de grilling (aún sin resolver, no asumir)
 - Edición/borrado de entradas pasadas: se asume CRUD estándar, no grillado
   explícitamente por ser funcionalidad básica esperada, no una decisión de diseño.
+
+### Tema claro/oscuro, nombre por Trabajo y navegación por año/mes
+
+Cerradas en sesión `/grill-me` (2026-07-24, segunda ronda):
+
+- **Tema:** además de seguir el sistema (ya implementado por defecto), interruptor
+  manual con 3 opciones: **Sistema (default) / Claro / Oscuro**, persistido.
+  Vive en una **pantalla de Ajustes nueva**, dedicada.
+- **Ajustes también absorbe el backup JSON** (export/import), que se saca del
+  menú de overflow de "Mis Trabajos" y se mueve a esta pantalla nueva.
+- **Nombre por Trabajo:** al crear un Trabajo se pide también el **nombre de la
+  persona** (no un dato global de la app — es por Trabajo, decisión explícita
+  pese a que iba a recomendar lo contrario). Campo **obligatorio**.
+  Aparece en el PDF/JPEG del resumen exportado (ej. "Juan Pérez — Bar Pepe —
+  Julio 2026").
+- **Pie de marca en el resumen exportado:** texto `Horas Trabajo — hecho por
+  RoyPM`, en **cada página** del PDF (no solo la última) y al final del JPEG.
+- **Editar Trabajo:** se añade capacidad de editar un Trabajo ya creado (nombre
+  del trabajo, nombre de la persona, símbolo de moneda) — no existía antes
+  (solo crear/borrar). Razón: sin editar, corregir un typo obligaría a
+  borrar-y-recrear, perdiendo horas/tarifas/dinero extra ya registrados por las
+  foreign keys en cascada.
+- **Navegación Trabajo → mes:** ya NO va directo al mes actual. Ahora entra en
+  una **pantalla de año**: barra arriba con el año en curso y flechas ◀▶ para
+  cambiar de año, y debajo una **cuadrícula 3×4** con los 12 meses de ese año.
+  - Se muestran **todos los meses** (pasados, presente y futuros), no solo los
+    que tienen datos.
+  - El **mes actual se marca con color**.
+  - Cada celda muestra **solo el nombre del mes** — sin resumen de horas/dinero
+    ni indicador de "tiene datos" (se descartó explícitamente por ruido visual
+    en una cuadrícula compacta).
+  - Año por defecto al entrar: el año en curso.
+  - Tocar un mes navega a la `MesScreen` ya existente, sin cambios en su
+    comportamiento interno.

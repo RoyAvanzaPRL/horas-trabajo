@@ -12,6 +12,9 @@ enum class EstiloFila { TITULO, NORMAL, NEGRITA }
 
 data class FilaResumen(val izquierda: String, val derecha: String = "", val estilo: EstiloFila = EstiloFila.NORMAL)
 
+/** Pie de marca mostrado en cada página del PDF y al final del JPEG. */
+const val PIE_DE_MARCA = "Horas Trabajo — hecho por RoyPM"
+
 /** Construye las filas de texto del resumen, compartidas entre el exportador de PDF y el de JPEG. */
 fun construirFilasResumen(resumen: ResumenMensual): List<FilaResumen> {
     val simbolo = resumen.trabajo.simboloMoneda
@@ -19,7 +22,8 @@ fun construirFilasResumen(resumen: ResumenMensual): List<FilaResumen> {
         .replaceFirstChar { it.uppercase() }
     val filas = mutableListOf<FilaResumen>()
 
-    filas += FilaResumen("${resumen.trabajo.nombre} — $nombreMes ${resumen.anio}", estilo = EstiloFila.TITULO)
+    val encabezado = "${resumen.trabajo.nombreUsuario} — ${resumen.trabajo.nombre} — $nombreMes ${resumen.anio}"
+    filas += FilaResumen(encabezado, estilo = EstiloFila.TITULO)
     val tarifaTexto = resumen.precioPorHora?.let { "${it.formateado(simbolo)}/hora" } ?: "sin fijar"
     filas += FilaResumen("Tarifa: $tarifaTexto")
     filas += FilaResumen("")

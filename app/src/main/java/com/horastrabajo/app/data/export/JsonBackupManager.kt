@@ -38,6 +38,7 @@ class JsonBackupManager(
             TrabajoDto(
                 id = trabajo.id,
                 nombre = trabajo.nombre,
+                nombreUsuario = trabajo.nombreUsuario,
                 simboloMoneda = trabajo.simboloMoneda,
                 entradas = entradaHorasRepository.obtenerTodasDelTrabajo(trabajo.id).map { it.toDto() },
                 tarifas = tarifaMensualRepository.obtenerTodasDelTrabajo(trabajo.id).map {
@@ -58,7 +59,11 @@ class JsonBackupManager(
         val backup = json.decodeFromString(BackupDto.serializer(), contenidoJson)
         for (trabajoDto in backup.trabajos) {
             val nuevoTrabajoId = trabajoRepository.guardar(
-                Trabajo(nombre = trabajoDto.nombre, simboloMoneda = trabajoDto.simboloMoneda)
+                Trabajo(
+                    nombre = trabajoDto.nombre,
+                    nombreUsuario = trabajoDto.nombreUsuario,
+                    simboloMoneda = trabajoDto.simboloMoneda,
+                )
             )
             entradaHorasRepository.guardarVarias(trabajoDto.entradas.map { it.toDomain(nuevoTrabajoId) })
             tarifaMensualRepository.guardarVarias(
