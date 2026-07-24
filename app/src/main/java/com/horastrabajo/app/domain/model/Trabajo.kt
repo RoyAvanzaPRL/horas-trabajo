@@ -1,0 +1,7 @@
+package com.horastrabajo.app.domain.model
+
+data class Trabajo(
+    val id: Long = 0,
+    val nombre: String,
+    val simboloMoneda: String = "€",
+)
