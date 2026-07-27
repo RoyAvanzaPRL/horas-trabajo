@@ -1,4 +1,145 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Idioma por defecto (español). Al ser la carpeta `values/` sin sufijo, Android cae aquí
+    automáticamente cuando el idioma del dispositivo no es ninguno de los soportados
+    (ver `values-en/` y `values-ca/`).
+-->
 <resources>
-    <string name="app_name">Horas Trabajo</string>
+    <string name="app_name" translatable="false">TrackTime</string>
+
+    <!-- Acciones comunes a toda la app -->
+    <string name="accion_guardar">Guardar</string>
+    <string name="accion_cancelar">Cancelar</string>
+    <string name="accion_eliminar">Eliminar</string>
+    <string name="accion_editar">Editar</string>
+    <string name="accion_aceptar">Aceptar</string>
+    <string name="accion_volver">Volver</string>
+    <string name="accion_anadir">+ Añadir</string>
+    <string name="accion_continuar">Continuar</string>
+    <string name="accion_entendido">Entendido</string>
+    <string name="accion_deshacer">Deshacer</string>
+    <string name="accion_compartir">Compartir</string>
+
+    <!-- Campos de formulario compartidos -->
+    <string name="campo_obligatorio">Campo obligatorio</string>
+    <string name="campo_numero_invalido">Introduce un número válido, ej. 8,50</string>
+    <string name="campo_fecha">Fecha</string>
+
+    <!-- Pantalla: Mis Trabajos -->
+    <string name="trabajos_titulo">Mis Trabajos</string>
+    <string name="trabajos_vacio_titulo">Añade tu primer trabajo</string>
+    <string name="trabajos_vacio_mensaje">Registra tus horas y lo que ganas en cada trabajo. Empieza creando el primero.</string>
+    <string name="trabajos_vacio_boton">Crear trabajo</string>
+    <string name="trabajo_nuevo">Nuevo trabajo</string>
+    <string name="trabajo_editar">Editar trabajo</string>
+    <string name="trabajo_anadir">Añadir trabajo</string>
+    <string name="trabajo_mas_opciones">Más opciones de %1$s</string>
+    <string name="trabajo_eliminar_titulo">Eliminar trabajo</string>
+    <string name="trabajo_eliminar_mensaje">Se eliminará \"%1$s\" junto con todas sus horas, tarifas y dinero extra registrados. Esta acción no se puede deshacer.</string>
+    <string name="trabajo_campo_nombre">Nombre del trabajo</string>
+    <string name="trabajo_campo_tu_nombre">Tu nombre</string>
+    <string name="trabajo_campo_moneda">Moneda</string>
+
+    <!-- Monedas -->
+    <string name="moneda_euro">Euro</string>
+    <string name="moneda_dolar">Dólar</string>
+    <string name="moneda_libra">Libra</string>
+    <string name="moneda_yen">Yen</string>
+    <string name="moneda_franco">Franco suizo</string>
+    <string name="moneda_opcion">%1$s (%2$s)</string>
+
+    <!-- Pantalla: Año -->
+    <string name="anio_hoy">Hoy</string>
+    <string name="anio_anterior">Año anterior</string>
+    <string name="anio_siguiente">Año siguiente</string>
+    <string name="anio_total">%1$s · %2$s</string>
+
+    <!-- Pantalla: Mes -->
+    <string name="mes_titulo">%1$s · %2$s %3$d</string>
+    <string name="mes_ver_resumen">Ver resumen y exportar</string>
+    <string name="mes_tarifa_etiqueta">Tarifa este mes</string>
+    <string name="mes_tarifa_valor">%1$s %2$s/hora</string>
+    <string name="mes_tarifa_sin_fijar">sin fijar</string>
+    <string name="mes_dinero_extra_titulo">Dinero extra este mes</string>
+    <string name="mes_eliminar_dinero_extra">Eliminar dinero extra</string>
+    <string name="mes_dinero_extra_eliminado">Dinero extra eliminado</string>
+    <string name="mes_dinero_extra_fila">%1$d/%2$d · %3$s</string>
+    <string name="mes_total_dinero">Total dinero: %1$s</string>
+    <string name="mes_total_horas">Total horas: %1$s</string>
+    <string name="mes_dia_encabezado">%1$d (%2$s)</string>
+    <string name="mes_dia_valor">%1$s · %2$s</string>
+    <string name="mes_total_semana">Total semana</string>
+    <string name="mes_total_semana_parcial">Total semana (parcial)</string>
+    <string name="mes_semana_resumen">%1$s: %2$s · %3$s</string>
+    <string name="marcador_nocturno">Incluye turno nocturno</string>
+    <string name="marcador_tarifa_distinta">Incluye tarifa distinta a la del mes</string>
+    <string name="marcador_varios_turnos">Incluye %1$d turnos ese día</string>
+
+    <!-- Diálogo: tarifa del mes -->
+    <string name="tarifa_dialogo_titulo">Tarifa por hora de este mes</string>
+    <string name="tarifa_campo_precio">Precio por hora (%1$s)</string>
+
+    <!-- Formulario: dinero extra -->
+    <string name="dinero_extra_titulo">Dinero extra</string>
+    <string name="dinero_extra_campo_cantidad">Cantidad (puede ser negativa)</string>
+    <string name="dinero_extra_campo_descripcion">Descripción (ej. reparto)</string>
+
+    <!-- Formulario: horas del día -->
+    <string name="entrada_titulo">Horas del %1$s</string>
+    <string name="entrada_anadir_turno">Añadir otro turno</string>
+    <string name="entrada_turno_eliminado">Turno eliminado</string>
+    <string name="entrada_rango_horas">%1$s - %2$s</string>
+    <string name="entrada_sufijo_dia_siguiente">(+1 día)</string>
+    <string name="entrada_hora_entrada">Entrada</string>
+    <string name="entrada_hora_salida">Salida</string>
+    <string name="entrada_turno_nocturno">Turno nocturno</string>
+    <string name="entrada_que_es_nocturno">Qué significa turno nocturno</string>
+    <string name="entrada_error_horario">La hora de salida no puede ser anterior a la de entrada, salvo turno nocturno</string>
+    <string name="entrada_error_solapa">Este turno se solapa con otro ya registrado ese día</string>
+    <string name="entrada_campo_nota">Nota</string>
+    <string name="entrada_anadir_nota">+ Añadir nota</string>
+    <string name="entrada_tarifa_distinta">Tarifa distinta para este turno</string>
+    <string name="entrada_tarifa_turno">Tarifa de este turno: %1$s %2$s/hora</string>
+    <string name="entrada_nocturno_explicacion">Actívalo si el turno cruza la medianoche. Ejemplo: entras a las 22:00 y sales a las 06:00 — la hora de salida se cuenta como del día siguiente.</string>
+
+    <!-- Pantalla: Ajustes -->
+    <string name="ajustes_titulo">Ajustes</string>
+    <string name="ajustes_tema">Tema</string>
+    <string name="tema_sistema">Sistema</string>
+    <string name="tema_claro">Claro</string>
+    <string name="tema_oscuro">Oscuro</string>
+    <string name="ajustes_idioma">Idioma</string>
+    <string name="idioma_sistema">Sistema</string>
+    <string name="idioma_espanol">Español</string>
+    <string name="idioma_ingles">Inglés</string>
+    <string name="idioma_catalan">Catalán</string>
+    <string name="ajustes_backup">Backup</string>
+    <string name="ajustes_backup_descripcion">Exporta tus trabajos, horas y tarifas a un archivo, o restaura desde uno.</string>
+    <string name="ajustes_exportar_backup">Exportar backup (JSON)</string>
+    <string name="ajustes_importar_backup">Importar backup (JSON)</string>
+    <string name="ajustes_importar_titulo">Importar backup</string>
+    <string name="ajustes_importar_mensaje">Los trabajos del archivo se añadirán como trabajos nuevos. No se sobrescribirán ni se eliminarán tus trabajos actuales.</string>
+    <string name="ajustes_backup_importado">Backup importado correctamente.</string>
+    <string name="ajustes_error_exportar">No se pudo exportar el backup.</string>
+    <string name="ajustes_error_importar">No se pudo importar el backup: el archivo no es válido.</string>
+    <string name="ajustes_error_leer">No se pudo leer el archivo seleccionado.</string>
+
+    <!-- Pantalla: Resumen -->
+    <string name="resumen_titulo">Resumen</string>
+    <string name="resumen_exportar_pdf">Exportar PDF</string>
+    <string name="resumen_exportar_jpeg">Exportar JPEG</string>
+    <string name="resumen_error_exportar">No se pudo generar el archivo. Inténtalo de nuevo.</string>
+
+    <!-- Contenido de los documentos exportados (PDF y JPEG) -->
+    <string name="export_pie_de_marca">TrackTime — hecho por RoyPM</string>
+    <string name="export_encabezado">%1$s — %2$s — %3$s %4$d</string>
+    <string name="export_tarifa">Tarifa: %1$s</string>
+    <string name="export_por_hora">%1$s/hora</string>
+    <string name="export_horas_del_mes">Horas del mes</string>
+    <string name="export_total_horas_mes">TOTAL HORAS DEL MES</string>
+    <string name="export_total_dinero_extra">Total dinero extra</string>
+    <string name="export_total_a_cobrar">TOTAL A COBRAR</string>
+    <string name="export_entrada">%1$s (%2$s) %3$s - %4$s</string>
+    <string name="export_tarifa_custom">(%1$s/h)</string>
+    <string name="export_fila_dinero_extra">%1$s  %2$s</string>
 </resources>

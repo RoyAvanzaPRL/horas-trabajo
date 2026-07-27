@@ -59,7 +59,10 @@ object ResumenMensualCalculator {
             .sortedBy { it.key }
             .map { (fecha, entradasDelDia) ->
                 val horas = entradasDelDia.sumOf { it.horasDecimal }
-                val dinero = precioPorHora?.let { Dinero.porHoras(horas, it) } ?: Dinero.CERO
+                val dinero = entradasDelDia.map { entrada ->
+                    val tarifaEfectiva = entrada.precioPorHoraCustom ?: precioPorHora
+                    tarifaEfectiva?.let { Dinero.porHoras(entrada.horasDecimal, it) } ?: Dinero.CERO
+                }.suma()
                 ResumenDia(fecha = fecha, entradas = entradasDelDia, horas = horas, dinero = dinero)
             }
 

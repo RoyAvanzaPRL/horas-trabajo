@@ -3,6 +3,7 @@ package com.horastrabajo.app
 import android.app.Application
 import com.horastrabajo.app.data.export.JsonBackupManager
 import com.horastrabajo.app.data.local.AppDatabase
+import com.horastrabajo.app.data.preferences.IdiomaPreferenceRepository
 import com.horastrabajo.app.data.preferences.ThemePreferenceRepository
 import com.horastrabajo.app.data.repository.DineroExtraRepository
 import com.horastrabajo.app.data.repository.DineroExtraRepositoryImpl
@@ -36,6 +37,9 @@ class HorasTrabajoApp : Application() {
     lateinit var themePreferenceRepository: ThemePreferenceRepository
         private set
 
+    lateinit var idiomaPreferenceRepository: IdiomaPreferenceRepository
+        private set
+
     override fun onCreate() {
         super.onCreate()
         database = AppDatabase.build(this)
@@ -50,5 +54,6 @@ class HorasTrabajoApp : Application() {
             dineroExtraRepository = dineroExtraRepository,
         )
         themePreferenceRepository = ThemePreferenceRepository(this)
+        idiomaPreferenceRepository = IdiomaPreferenceRepository(this)
     }
 }

@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HorasTrabajo"
+rootProject.name = "TrackTime"
 include(":app")

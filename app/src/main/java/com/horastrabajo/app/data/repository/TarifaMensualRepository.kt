@@ -3,6 +3,8 @@ package com.horastrabajo.app.data.repository
 import com.horastrabajo.app.data.local.dao.TarifaMensualDao
 import com.horastrabajo.app.domain.model.Dinero
 import com.horastrabajo.app.domain.model.TarifaMensual
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 interface TarifaMensualRepository {
     /**
@@ -16,6 +18,9 @@ interface TarifaMensualRepository {
     /** Todas las tarifas de un trabajo. Solo para backup/export. */
     suspend fun obtenerTodasDelTrabajo(trabajoId: Long): List<TarifaMensual>
     suspend fun guardarVarias(tarifas: List<TarifaMensual>)
+
+    /** Reactivo: para dashboards que necesitan enterarse cuando se fija/cambia una tarifa. */
+    fun observeTodasDelTrabajo(trabajoId: Long): Flow<List<TarifaMensual>>
 }
 
 class TarifaMensualRepositoryImpl(private val dao: TarifaMensualDao) : TarifaMensualRepository {
@@ -34,4 +39,7 @@ class TarifaMensualRepositoryImpl(private val dao: TarifaMensualDao) : TarifaMen
 
     override suspend fun guardarVarias(tarifas: List<TarifaMensual>) =
         dao.insertAll(tarifas.map { it.toEntity() })
+
+    override fun observeTodasDelTrabajo(trabajoId: Long): Flow<List<TarifaMensual>> =
+        dao.observeAllByTrabajo(trabajoId).map { entidades -> entidades.map { it.toDomain() } }
 }

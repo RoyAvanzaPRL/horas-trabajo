@@ -33,4 +33,5 @@ data class EntradaHorasEntity(
     val horaSalida: LocalTime,
     val esDiaSiguiente: Boolean,
     val notas: String? = null,
+    val precioPorHoraCustomCentimos: Long? = null,
 )

@@ -23,7 +23,7 @@ import com.horastrabajo.app.data.local.entity.TrabajoEntity
         TarifaMensualEntity::class,
         DineroExtraEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -44,9 +44,21 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /** Tarifa por hora custom para un turno concreto, distinta de la tarifa del mes. */
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE entrada_horas ADD COLUMN precioPorHoraCustomCentimos INTEGER")
+            }
+        }
+
+        /**
+         * La base de datos arranca vacía en una instalación nueva: es la pantalla de
+         * Trabajos la que da la bienvenida con su estado vacío y guía a crear el primer
+         * trabajo, en vez de insertar datos de muestra que el usuario tendría que borrar.
+         */
         fun build(context: Context): AppDatabase =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, DB_NAME)
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
     }
 }

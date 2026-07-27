@@ -13,6 +13,8 @@ data class EntradaHoras(
     val horaSalida: LocalTime,
     val esDiaSiguiente: Boolean,
     val notas: String? = null,
+    /** Tarifa distinta a la del mes, solo para este turno (ej. horas extra a otro precio). */
+    val precioPorHoraCustom: Dinero? = null,
 ) {
     val inicio: LocalDateTime get() = fecha.atTime(horaEntrada)
 

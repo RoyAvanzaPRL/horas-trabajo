@@ -88,6 +88,7 @@ private fun EntradaHoras.toDto() = EntradaHorasDto(
     horaSalidaIso = horaSalida.toString(),
     esDiaSiguiente = esDiaSiguiente,
     notas = notas,
+    precioPorHoraCustomCentimos = precioPorHoraCustom?.centimos,
 )
 
 private fun EntradaHorasDto.toDomain(trabajoId: Long) = EntradaHoras(
@@ -97,6 +98,7 @@ private fun EntradaHorasDto.toDomain(trabajoId: Long) = EntradaHoras(
     horaSalida = LocalTime.parse(horaSalidaIso),
     esDiaSiguiente = esDiaSiguiente,
     notas = notas,
+    precioPorHoraCustom = precioPorHoraCustomCentimos?.let { Dinero(it) },
 )
 
 private fun DineroExtra.toDto() = DineroExtraDto(

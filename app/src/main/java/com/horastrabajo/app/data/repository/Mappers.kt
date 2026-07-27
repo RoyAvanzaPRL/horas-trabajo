@@ -22,6 +22,7 @@ fun EntradaHorasEntity.toDomain() = EntradaHoras(
     horaSalida = horaSalida,
     esDiaSiguiente = esDiaSiguiente,
     notas = notas,
+    precioPorHoraCustom = precioPorHoraCustomCentimos?.let { Dinero(it) },
 )
 
 fun EntradaHoras.toEntity() = EntradaHorasEntity(
@@ -32,6 +33,7 @@ fun EntradaHoras.toEntity() = EntradaHorasEntity(
     horaSalida = horaSalida,
     esDiaSiguiente = esDiaSiguiente,
     notas = notas,
+    precioPorHoraCustomCentimos = precioPorHoraCustom?.centimos,
 )
 
 fun TarifaMensualEntity.toDomain() = TarifaMensual(

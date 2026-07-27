@@ -24,10 +24,19 @@ object AppViewModelProvider {
             TrabajosViewModel(horasTrabajoApp().trabajoRepository)
         }
         initializer {
-            AjustesViewModel(horasTrabajoApp().themePreferenceRepository, horasTrabajoApp().jsonBackupManager)
+            AjustesViewModel(
+                themePreferenceRepository = horasTrabajoApp().themePreferenceRepository,
+                idiomaPreferenceRepository = horasTrabajoApp().idiomaPreferenceRepository,
+                jsonBackupManager = horasTrabajoApp().jsonBackupManager,
+            )
         }
         initializer {
-            AnioViewModel(horasTrabajoApp().trabajoRepository)
+            AnioViewModel(
+                trabajoRepository = horasTrabajoApp().trabajoRepository,
+                entradaHorasRepository = horasTrabajoApp().entradaHorasRepository,
+                dineroExtraRepository = horasTrabajoApp().dineroExtraRepository,
+                tarifaMensualRepository = horasTrabajoApp().tarifaMensualRepository,
+            )
         }
         initializer {
             MesViewModel(

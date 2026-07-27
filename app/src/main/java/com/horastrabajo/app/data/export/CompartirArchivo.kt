@@ -3,6 +3,7 @@ package com.horastrabajo.app.data.export
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
+import com.horastrabajo.app.R
 import java.io.File
 
 fun directorioExports(context: Context): File =
@@ -15,5 +16,5 @@ fun compartirArchivo(context: Context, archivo: File, mimeType: String) {
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
-    context.startActivity(Intent.createChooser(intent, "Compartir"))
+    context.startActivity(Intent.createChooser(intent, context.getString(R.string.accion_compartir)))
 }

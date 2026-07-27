@@ -4,10 +4,14 @@ import com.horastrabajo.app.data.local.dao.DineroExtraDao
 import com.horastrabajo.app.domain.model.DineroExtra
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import java.time.YearMonth
 
 interface DineroExtraRepository {
     fun observePorMes(trabajoId: Long, anio: Int, mes: Int): Flow<List<DineroExtra>>
+
+    /** Todo el dinero extra de [anio] (los 12 meses), para dashboards/resúmenes anuales. */
+    fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<DineroExtra>>
     suspend fun guardar(dineroExtra: DineroExtra): Long
     suspend fun eliminar(dineroExtra: DineroExtra)
 
@@ -21,6 +25,13 @@ class DineroExtraRepositoryImpl(private val dao: DineroExtraDao) : DineroExtraRe
     override fun observePorMes(trabajoId: Long, anio: Int, mes: Int): Flow<List<DineroExtra>> {
         val yearMonth = YearMonth.of(anio, mes)
         return dao.observeByTrabajoYRango(trabajoId, yearMonth.atDay(1), yearMonth.atEndOfMonth())
+            .map { entidades -> entidades.map { it.toDomain() } }
+    }
+
+    override fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<DineroExtra>> {
+        val desde = LocalDate.of(anio, 1, 1)
+        val hasta = LocalDate.of(anio, 12, 31)
+        return dao.observeByTrabajoYRango(trabajoId, desde, hasta)
             .map { entidades -> entidades.map { it.toDomain() } }
     }
 

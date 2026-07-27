@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.horastrabajo.app.data.local.entity.TarifaMensualEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TarifaMensualDao {
@@ -23,6 +24,10 @@ interface TarifaMensualDao {
     /** Todas las tarifas de un trabajo. Solo para backup/export. */
     @Query("SELECT * FROM tarifa_mensual WHERE trabajoId = :trabajoId")
     suspend fun getAllByTrabajo(trabajoId: Long): List<TarifaMensualEntity>
+
+    /** Reactivo: para dashboards que necesitan enterarse cuando se fija/cambia una tarifa. */
+    @Query("SELECT * FROM tarifa_mensual WHERE trabajoId = :trabajoId")
+    fun observeAllByTrabajo(trabajoId: Long): Flow<List<TarifaMensualEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(tarifa: TarifaMensualEntity): Long

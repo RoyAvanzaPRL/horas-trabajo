@@ -70,4 +70,6 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.datastore.preferences)
+
+    testImplementation(libs.junit)
 }

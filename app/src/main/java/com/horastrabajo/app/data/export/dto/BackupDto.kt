@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class BackupDto(
-    val version: Int = 2,
+    val version: Int = 3,
     val trabajos: List<TrabajoDto>,
 )
 
@@ -33,6 +33,8 @@ data class EntradaHorasDto(
     val horaSalidaIso: String,
     val esDiaSiguiente: Boolean,
     val notas: String? = null,
+    // Default null para poder seguir importando backups (version < 3) creados antes de este campo.
+    val precioPorHoraCustomCentimos: Long? = null,
 )
 
 @Serializable

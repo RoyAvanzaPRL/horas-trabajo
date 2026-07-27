@@ -3,7 +3,6 @@ package com.horastrabajo.app.data.export
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
-import com.horastrabajo.app.domain.ResumenMensual
 import java.io.File
 import java.io.FileOutputStream
 
@@ -16,8 +15,8 @@ private const val Y_PIE_DE_PAGINA = ALTO_A4 - 20f
 
 object PdfExporter {
 
-    fun exportar(resumen: ResumenMensual, archivoDestino: File) {
-        val filas = construirFilasResumen(resumen)
+    /** [filas] y [pieDeMarca] llegan ya traducidos desde la UI (ver `construirFilasResumen`). */
+    fun exportar(filas: List<FilaResumen>, pieDeMarca: String, archivoDestino: File) {
         val documento = PdfDocument()
 
         val paintNormal = Paint().apply { textSize = 11f }
@@ -32,7 +31,7 @@ object PdfExporter {
 
         fun finalizarPaginaActual() {
             val paginaActual = pagina ?: return
-            canvas?.drawText(PIE_DE_MARCA, MARGEN, Y_PIE_DE_PAGINA, paintPie)
+            canvas?.drawText(pieDeMarca, MARGEN, Y_PIE_DE_PAGINA, paintPie)
             documento.finishPage(paginaActual)
         }
 

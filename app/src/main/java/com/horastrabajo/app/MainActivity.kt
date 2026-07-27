@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.horastrabajo.app.data.preferences.TemaPreferido
 import com.horastrabajo.app.ui.AppViewModelProvider
 import com.horastrabajo.app.ui.ajustes.AjustesViewModel
+import com.horastrabajo.app.ui.components.ProveedorIdioma
 import com.horastrabajo.app.ui.navigation.HorasTrabajoNavGraph
 import com.horastrabajo.app.ui.theme.HorasTrabajoTheme
 
@@ -24,14 +25,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             val ajustesViewModel: AjustesViewModel = viewModel(factory = AppViewModelProvider.Factory)
             val temaPreferido by ajustesViewModel.temaPreferido.collectAsState()
+            val idiomaPreferido by ajustesViewModel.idiomaPreferido.collectAsState()
             val temaOscuro = when (temaPreferido) {
                 TemaPreferido.SISTEMA -> isSystemInDarkTheme()
                 TemaPreferido.CLARO -> false
                 TemaPreferido.OSCURO -> true
             }
-            HorasTrabajoTheme(darkTheme = temaOscuro) {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    HorasTrabajoNavGraph()
+            ProveedorIdioma(idioma = idiomaPreferido) {
+                HorasTrabajoTheme(darkTheme = temaOscuro) {
+                    Surface(modifier = Modifier.fillMaxSize()) {
+                        HorasTrabajoNavGraph()
+                    }
                 }
             }
         }

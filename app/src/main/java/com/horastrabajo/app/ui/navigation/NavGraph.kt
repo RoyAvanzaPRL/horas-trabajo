@@ -49,11 +49,6 @@ fun HorasTrabajoNavGraph(navController: NavHostController = rememberNavControlle
                 trabajoId = trabajoId,
                 anio = anio,
                 mes = mes,
-                onCambiarMes = { nuevoAnio, nuevoMes ->
-                    navController.navigate(rutaMes(trabajoId, nuevoAnio, nuevoMes)) {
-                        popUpTo(RUTA_ANIO)
-                    }
-                },
                 onVerResumen = { navController.navigate(rutaResumen(trabajoId, anio, mes)) },
                 onVolver = { navController.popBackStack() },
             )

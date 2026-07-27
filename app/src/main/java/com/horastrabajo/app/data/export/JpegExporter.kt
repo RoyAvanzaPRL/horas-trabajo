@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import com.horastrabajo.app.domain.ResumenMensual
 import java.io.File
 import java.io.FileOutputStream
 
@@ -17,9 +16,8 @@ private const val CALIDAD_JPEG = 92
 
 object JpegExporter {
 
-    fun exportar(resumen: ResumenMensual, archivoDestino: File) {
-        val filas = construirFilasResumen(resumen)
-
+    /** [filas] y [pieDeMarca] llegan ya traducidos desde la UI (ver `construirFilasResumen`). */
+    fun exportar(filas: List<FilaResumen>, pieDeMarca: String, archivoDestino: File) {
         val paintNormal = Paint().apply { textSize = 26f; color = Color.BLACK; isAntiAlias = true }
         val paintNegrita = Paint().apply { textSize = 26f; isFakeBoldText = true; color = Color.BLACK; isAntiAlias = true }
         val paintTitulo = Paint().apply { textSize = 34f; isFakeBoldText = true; color = Color.BLACK; isAntiAlias = true }
@@ -49,7 +47,7 @@ object JpegExporter {
             y += alturaFila
         }
 
-        canvas.drawText(PIE_DE_MARCA, MARGEN, y + ALTURA_PIE / 2, paintPie)
+        canvas.drawText(pieDeMarca, MARGEN, y + ALTURA_PIE / 2, paintPie)
 
         FileOutputStream(archivoDestino).use { salida ->
             bitmap.compress(Bitmap.CompressFormat.JPEG, CALIDAD_JPEG, salida)
