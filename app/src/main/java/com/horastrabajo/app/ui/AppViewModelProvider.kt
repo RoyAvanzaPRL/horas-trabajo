@@ -26,7 +26,6 @@ object AppViewModelProvider {
         initializer {
             AjustesViewModel(
                 themePreferenceRepository = horasTrabajoApp().themePreferenceRepository,
-                idiomaPreferenceRepository = horasTrabajoApp().idiomaPreferenceRepository,
                 jsonBackupManager = horasTrabajoApp().jsonBackupManager,
             )
         }

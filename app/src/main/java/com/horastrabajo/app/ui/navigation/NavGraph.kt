@@ -31,7 +31,9 @@ fun HorasTrabajoNavGraph(navController: NavHostController = rememberNavControlle
             )
         }
         composable(RUTA_AJUSTES) {
-            AjustesScreen(onVolver = { navController.popBackStack() })
+            AjustesScreen(
+                onVolver = { navController.popBackStack() },
+            )
         }
         composable(RUTA_ANIO) { backStackEntry ->
             val trabajoId = backStackEntry.arguments?.getString("trabajoId")?.toLongOrNull() ?: return@composable

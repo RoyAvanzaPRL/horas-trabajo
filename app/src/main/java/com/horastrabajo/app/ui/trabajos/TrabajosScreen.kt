@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,6 +37,7 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -110,7 +112,10 @@ fun TrabajosScreen(
     }
 
     if (mostrarDialogoNuevo) {
-        ModalBottomSheet(onDismissRequest = { mostrarDialogoNuevo = false }) {
+        ModalBottomSheet(
+            onDismissRequest = { mostrarDialogoNuevo = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
             TrabajoFormSheetContent(
                 titulo = stringResource(R.string.trabajo_nuevo),
                 nombreInicial = "",
@@ -126,7 +131,10 @@ fun TrabajosScreen(
     }
 
     trabajoEditando?.let { trabajo ->
-        ModalBottomSheet(onDismissRequest = { trabajoEditando = null }) {
+        ModalBottomSheet(
+            onDismissRequest = { trabajoEditando = null },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
             TrabajoFormSheetContent(
                 titulo = stringResource(R.string.trabajo_editar),
                 nombreInicial = trabajo.nombre,
@@ -167,16 +175,16 @@ private fun EstadoVacioTrabajos(onCrear: () -> Unit, modifier: Modifier = Modifi
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.padding(32.dp),
         ) {
-            Box(
+            IconButton(
+                onClick = onCrear,
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.trabajo_nuevo),
                     modifier = Modifier.size(36.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
@@ -285,7 +293,7 @@ private fun TrabajoFormSheetContent(
     val esValido = nombre.isNotBlank() && nombreUsuario.isNotBlank()
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp).navigationBarsPadding(),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(titulo, style = MaterialTheme.typography.titleLarge)

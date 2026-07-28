@@ -58,7 +58,7 @@ fun AjustesScreen(
     viewModel: AjustesViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val temaPreferido by viewModel.temaPreferido.collectAsState()
-    val idiomaPreferido by viewModel.idiomaPreferido.collectAsState()
+    val idiomaPreferido = viewModel.obtenerIdiomaActual()
     val mensaje by viewModel.mensaje.collectAsState()
     val contexto = LocalContext.current
     val scope = rememberCoroutineScope()

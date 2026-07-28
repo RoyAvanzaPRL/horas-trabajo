@@ -12,6 +12,8 @@ import java.util.Locale
 private val FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm")
 private val FORMATO_DIA = DateTimeFormatter.ofPattern("dd/MM")
 
+internal fun estiloFilaTotalResumen(): EstiloFila = EstiloFila.TITULO
+
 enum class EstiloFila { TITULO, NORMAL, NEGRITA }
 
 data class FilaResumen(
@@ -75,7 +77,7 @@ fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaR
         }
     }
 
-    filas += FilaResumen("")
+    // filas += FilaResumen("")
     filas += FilaResumen(
         context.getString(R.string.export_total_horas_mes),
         if (resumen.dineroExtra.isNotEmpty()) {
@@ -83,7 +85,7 @@ fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaR
         } else {
             formatearHoras(resumen.totalHoras)
         },
-        EstiloFila.NEGRITA,
+        estiloFilaTotalResumen(),
     )
 
     if (resumen.dineroExtra.isNotEmpty()) {
@@ -98,7 +100,7 @@ fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaR
         filas += FilaResumen(
             context.getString(R.string.export_total_dinero_extra),
             resumen.totalDineroExtra.formateado(simbolo),
-            EstiloFila.NEGRITA,
+            estiloFilaTotalResumen(),
         )
     }
 

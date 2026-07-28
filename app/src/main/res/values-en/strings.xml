@@ -131,7 +131,7 @@
     <string name="export_tarifa">Rate: %1$s</string>
     <string name="export_por_hora">%1$s/hour</string>
     <string name="export_horas_del_mes">Hours this month</string>
-    <string name="export_total_horas_mes">TOTAL HOURS THIS MONTH</string>
+    <string name="export_total_horas_mes">Total hours this month</string>
     <string name="export_total_dinero_extra">Total extra money</string>
     <string name="export_total_a_cobrar">TOTAL TO BE PAID</string>
     <string name="export_entrada">%1$s (%2$s) %3$s - %4$s</string>

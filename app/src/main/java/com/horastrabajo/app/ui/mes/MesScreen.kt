@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -267,7 +268,10 @@ fun MesScreen(
     diaSeleccionado?.let { fecha ->
         LaunchedEffect(fecha) { entradaFormViewModel.cargar(trabajoId, fecha) }
         val entradasDelDia by entradaFormViewModel.entradasDelDia.collectAsState()
-        ModalBottomSheet(onDismissRequest = { diaSeleccionado = null }) {
+        ModalBottomSheet(
+            onDismissRequest = { diaSeleccionado = null },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
             EntradaFormSheet(
                 fecha = fecha,
                 trabajoId = trabajoId,
@@ -292,7 +296,10 @@ fun MesScreen(
     }
 
     if (agregandoDineroExtra) {
-        ModalBottomSheet(onDismissRequest = { agregandoDineroExtra = false }) {
+        ModalBottomSheet(
+            onDismissRequest = { agregandoDineroExtra = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
             DineroExtraFormContent(
                 fechaPorDefecto = LocalDate.now().let { if (YearMonth.from(it) == yearMonth) it else yearMonth.atDay(1) },
                 onConfirmar = { fecha, monto, descripcion ->

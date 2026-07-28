@@ -2,11 +2,12 @@ package com.horastrabajo.app.ui.ajustes
 
 import android.util.Log
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.horastrabajo.app.R
 import com.horastrabajo.app.data.export.JsonBackupManager
-import com.horastrabajo.app.data.preferences.IdiomaPreferenceRepository
 import com.horastrabajo.app.data.preferences.IdiomaPreferido
 import com.horastrabajo.app.data.preferences.TemaPreferido
 import com.horastrabajo.app.data.preferences.ThemePreferenceRepository
@@ -22,15 +23,13 @@ import kotlinx.coroutines.withContext
 
 class AjustesViewModel(
     private val themePreferenceRepository: ThemePreferenceRepository,
-    private val idiomaPreferenceRepository: IdiomaPreferenceRepository,
     private val jsonBackupManager: JsonBackupManager,
 ) : ViewModel() {
 
     val temaPreferido: StateFlow<TemaPreferido> = themePreferenceRepository.temaPreferido
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TemaPreferido.SISTEMA)
 
-    val idiomaPreferido: StateFlow<IdiomaPreferido> = idiomaPreferenceRepository.idiomaPreferido
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), IdiomaPreferido.SISTEMA)
+    fun obtenerIdiomaActual(): IdiomaPreferido = idiomaDesdeAppCompat()
 
     private val _mensaje = MutableStateFlow<Int?>(null)
 
@@ -51,7 +50,12 @@ class AjustesViewModel(
     }
 
     fun cambiarIdioma(idioma: IdiomaPreferido) {
-        viewModelScope.launch { idiomaPreferenceRepository.guardarIdioma(idioma) }
+        val localeList = if (idioma == IdiomaPreferido.SISTEMA) {
+            LocaleListCompat.getEmptyLocaleList()
+        } else {
+            LocaleListCompat.forLanguageTags(idioma.etiquetaBcp47!!)
+        }
+        AppCompatDelegate.setApplicationLocales(localeList)
     }
 
     /** Backup completo (todos los trabajos) en JSON. [onListo] puede hacer I/O propia (ej. escribir a disco). */
@@ -91,5 +95,12 @@ class AjustesViewModel(
 
     private companion object {
         const val TAG = "AjustesViewModel"
+
+        /** Convierte [AppCompatDelegate.getApplicationLocales] a nuestro enum. */
+        fun idiomaDesdeAppCompat(): IdiomaPreferido {
+            val locales = AppCompatDelegate.getApplicationLocales()
+            val etiqueta = locales[0]?.toLanguageTag()
+            return IdiomaPreferido.entries.firstOrNull { it.etiquetaBcp47 == etiqueta } ?: IdiomaPreferido.SISTEMA
+        }
     }
 }

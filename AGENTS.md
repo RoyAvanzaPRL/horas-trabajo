@@ -132,6 +132,17 @@ Cerradas en sesión(es) `/grill-me` (2026-07-24):
 - **Sin recordatorios/notificaciones** para rellenar días — no se añade en el
   MVP; se revisita si en el uso real resulta ser un problema.
 
+## Entorno de build
+
+El JDK está en `/home/user/.jdks/jdk-17.0.20+8/bin/`. Para compilar el APK:
+
+```bash
+export JAVA_HOME=/home/user/.jdks/jdk-17.0.20+8
+cd /home/user/github/cashtrack && ./gradlew :app:assembleDebug
+```
+
+El APK generado queda en `app/build/outputs/apk/debug/app-debug.apk`.
+
 ### Pendiente de grilling (aún sin resolver, no asumir)
 - Edición/borrado de entradas pasadas: se asume CRUD estándar, no grillado
   explícitamente por ser funcionalidad básica esperada, no una decisión de diseño.
