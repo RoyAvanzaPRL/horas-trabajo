@@ -4,12 +4,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -25,6 +28,8 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +37,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.horastrabajo.app.R
 import com.horastrabajo.app.domain.model.EntradaHoras
@@ -55,13 +62,48 @@ fun EntradaFormSheet(
     entradasExistentes: List<EntradaHoras>,
     onGuardar: (EntradaHoras) -> Unit,
     onEliminar: (EntradaHoras) -> Unit,
+    onCerrar: () -> Unit = {},
+    onSolicitudCierreChange: (((() -> Unit)?) -> Unit)? = null,
 ) {
     var forzarFormulario by remember(fecha, trabajoId) { mutableStateOf(false) }
-    val mostrarFormulario = forzarFormulario || entradasExistentes.isEmpty()
+    var entradaEnEdicion by remember(fecha, trabajoId) { mutableStateOf<EntradaHoras?>(null) }
+    var entradaAEliminar by remember(fecha, trabajoId) { mutableStateOf<EntradaHoras?>(null) }
+    var entradaEditadaTieneCambios by remember(fecha, trabajoId) { mutableStateOf(false) }
+    var confirmarDescartarCambios by remember(fecha, trabajoId) { mutableStateOf(false) }
+    var cerrarTrasDescartarCambios by remember(fecha, trabajoId) { mutableStateOf(false) }
+    val mostrarFormulario = forzarFormulario || entradaEnEdicion != null || entradasExistentes.isEmpty()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val textoTurnoEliminado = stringResource(R.string.entrada_turno_eliminado)
     val textoDeshacer = stringResource(R.string.accion_deshacer)
+    fun descartarEdicion() {
+        entradaEnEdicion = null
+        entradaEditadaTieneCambios = false
+        confirmarDescartarCambios = false
+        cerrarTrasDescartarCambios = false
+        forzarFormulario = false
+    }
+    fun solicitarCancelarFormulario() {
+        if (entradaEnEdicion != null && entradaEditadaTieneCambios) {
+            cerrarTrasDescartarCambios = false
+            confirmarDescartarCambios = true
+        } else {
+            descartarEdicion()
+        }
+    }
+    val solicitarCierre: () -> Unit = {
+        if (entradaEnEdicion != null && entradaEditadaTieneCambios) {
+            cerrarTrasDescartarCambios = true
+            confirmarDescartarCambios = true
+        } else {
+            onCerrar()
+        }
+    }
+
+    DisposableEffect(solicitarCierre, onSolicitudCierreChange) {
+        onSolicitudCierreChange?.invoke(solicitarCierre)
+        onDispose { onSolicitudCierreChange?.invoke(null) }
+    }
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -81,19 +123,13 @@ fun EntradaFormSheet(
                 EntradaExistenteRow(
                     entrada = entrada,
                     simbolo = simbolo,
-                    onEliminar = {
-                        onEliminar(entrada)
-                        scope.launch {
-                            val resultado = snackbarHostState.showSnackbar(
-                                message = textoTurnoEliminado,
-                                actionLabel = textoDeshacer,
-                                duration = SnackbarDuration.Short,
-                            )
-                            if (resultado == SnackbarResult.ActionPerformed) {
-                                onGuardar(entrada.copy(id = 0))
-                            }
-                        }
+                    mostrarEditar = entradaEnEdicion?.id != entrada.id,
+                    onEditar = {
+                        entradaEnEdicion = entrada
+                        entradaEditadaTieneCambios = false
+                        forzarFormulario = true
                     },
+                    onEliminar = { entradaAEliminar = entrada },
                 )
                 HorizontalDivider()
             }
@@ -104,12 +140,14 @@ fun EntradaFormSheet(
                     trabajoId = trabajoId,
                     simbolo = simbolo,
                     entradasExistentes = entradasExistentes,
+                    entradaInicial = entradaEnEdicion,
+                    onDirtyChange = { entradaEditadaTieneCambios = it },
                     onGuardar = { entrada ->
                         onGuardar(entrada)
-                        forzarFormulario = false
+                        descartarEdicion()
                     },
                     onCancelar = if (entradasExistentes.isNotEmpty()) {
-                        { forzarFormulario = false }
+                        { solicitarCancelarFormulario() }
                     } else {
                         null
                     },
@@ -123,10 +161,100 @@ fun EntradaFormSheet(
         }
         SnackbarHost(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
     }
+
+    entradaAEliminar?.let { entrada ->
+        val rango = stringResource(
+            R.string.entrada_rango_horas,
+            entrada.horaEntrada.format(FORMATO_HORA),
+            entrada.horaSalida.format(FORMATO_HORA),
+        )
+        AlertDialog(
+            onDismissRequest = { entradaAEliminar = null },
+            title = { Text(stringResource(R.string.entrada_eliminar_titulo)) },
+            text = { Text(stringResource(R.string.entrada_eliminar_mensaje, rango)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    entradaAEliminar = null
+                    if (entradaEnEdicion?.id == entrada.id) entradaEnEdicion = null
+                    onEliminar(entrada)
+                    scope.launch {
+                        val resultado = snackbarHostState.showSnackbar(
+                            message = textoTurnoEliminado,
+                            actionLabel = textoDeshacer,
+                            duration = SnackbarDuration.Short,
+                        )
+                        if (resultado == SnackbarResult.ActionPerformed) {
+                            onGuardar(entrada.copy(id = 0))
+                        }
+                    }
+                }) { Text(stringResource(R.string.accion_eliminar)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { entradaAEliminar = null }) {
+                    Text(stringResource(R.string.accion_cancelar))
+                }
+            },
+        )
+    }
+
+    if (confirmarDescartarCambios) {
+        AlertDialog(
+            onDismissRequest = { confirmarDescartarCambios = false },
+            title = { Text(stringResource(R.string.cambios_sin_guardar_titulo)) },
+            text = { Text(stringResource(R.string.entrada_descartar_cambios_mensaje)) },
+            confirmButton = {
+                TextButton(onClick = { confirmarDescartarCambios = false }) {
+                    Text(stringResource(R.string.accion_seguir_editando))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    val cerrar = cerrarTrasDescartarCambios
+                    descartarEdicion()
+                    if (cerrar) onCerrar()
+                }) {
+                    Text(stringResource(R.string.accion_descartar_cambios))
+                }
+            },
+        )
+    }
 }
 
 @Composable
-private fun EntradaExistenteRow(entrada: EntradaHoras, simbolo: String, onEliminar: () -> Unit) {
+private fun EntradaCheckboxRow(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    trailing: (@Composable () -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.small)
+            .toggleable(
+                value = checked,
+                role = Role.Checkbox,
+                onValueChange = onCheckedChange,
+            )
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(checked = checked, onCheckedChange = null)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(label, modifier = Modifier.weight(1f))
+        trailing?.invoke()
+    }
+}
+
+@Composable
+private fun EntradaExistenteRow(
+    entrada: EntradaHoras,
+    simbolo: String,
+    mostrarEditar: Boolean,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit,
+) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f)) {
             val rango = stringResource(
@@ -148,6 +276,11 @@ private fun EntradaExistenteRow(entrada: EntradaHoras, simbolo: String, onElimin
                 )
             }
         }
+        if (mostrarEditar) {
+            IconButton(onClick = onEditar) {
+                Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.accion_editar))
+            }
+        }
         IconButton(onClick = onEliminar) {
             Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.accion_eliminar))
         }
@@ -163,42 +296,73 @@ private fun NuevaEntradaForm(
     trabajoId: Long,
     simbolo: String,
     entradasExistentes: List<EntradaHoras>,
+    entradaInicial: EntradaHoras? = null,
+    onDirtyChange: (Boolean) -> Unit = {},
     onGuardar: (EntradaHoras) -> Unit,
     onCancelar: (() -> Unit)?,
 ) {
-    var horaEntrada by remember { mutableStateOf(LocalTime.of(9, 0)) }
-    var horaSalida by remember { mutableStateOf(LocalTime.of(17, 0)) }
-    var esDiaSiguiente by remember { mutableStateOf(false) }
-    var mostrarNotas by remember { mutableStateOf(false) }
-    var notas by remember { mutableStateOf("") }
-    var usarTarifaCustom by remember { mutableStateOf(false) }
-    var tarifaCustomTexto by remember { mutableStateOf("") }
+    var horaEntrada by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.horaEntrada ?: LocalTime.of(9, 0))
+    }
+    var horaSalida by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.horaSalida ?: LocalTime.of(17, 0))
+    }
+    var esDiaSiguiente by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.esDiaSiguiente ?: false)
+    }
+    var mostrarNotas by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(!entradaInicial?.notas.isNullOrBlank())
+    }
+    var notas by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.notas.orEmpty())
+    }
+    var usarTarifaCustom by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.precioPorHoraCustom != null)
+    }
+    var tarifaCustomTexto by remember(entradaInicial?.id, fecha, trabajoId) {
+        mutableStateOf(entradaInicial?.precioPorHoraCustom?.let { dineroATexto(it) } ?: "")
+    }
     var mostrarInfoNocturno by remember { mutableStateOf(false) }
     var mostrarErrores by remember { mutableStateOf(false) }
 
     val candidato = EntradaHoras(
+        id = entradaInicial?.id ?: 0L,
         trabajoId = trabajoId,
         fecha = fecha,
         horaEntrada = horaEntrada,
         horaSalida = horaSalida,
         esDiaSiguiente = esDiaSiguiente,
     )
-    val seSolapa = entradasExistentes.any { seSolapan(candidato, it) }
+    val seSolapa = entradasExistentes
+        .filterNot { it.id == entradaInicial?.id }
+        .any { seSolapan(candidato, it) }
     val horarioInvalido = !esDiaSiguiente && horaSalida <= horaEntrada
     val tarifaCustomValida = !usarTarifaCustom || textoADinero(tarifaCustomTexto) != null
     val formularioValido = !horarioInvalido && !seSolapa && tarifaCustomValida
+    val entradaParaGuardar = candidato.copy(
+        notas = notas.takeIf { mostrarNotas && it.isNotBlank() },
+        precioPorHoraCustom = if (usarTarifaCustom) textoADinero(tarifaCustomTexto) else null,
+    )
+    val hayCambiosEdicion = entradaInicial?.let { inicial ->
+        entradaParaGuardar.horaEntrada != inicial.horaEntrada ||
+            entradaParaGuardar.horaSalida != inicial.horaSalida ||
+            entradaParaGuardar.esDiaSiguiente != inicial.esDiaSiguiente ||
+            entradaParaGuardar.notas.orEmpty() != inicial.notas.orEmpty() ||
+            entradaParaGuardar.precioPorHoraCustom != inicial.precioPorHoraCustom
+    } ?: false
+
+    LaunchedEffect(hayCambiosEdicion) {
+        onDirtyChange(hayCambiosEdicion)
+    }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         HoraPickerField(stringResource(R.string.entrada_hora_entrada), horaEntrada) { horaEntrada = it }
         HoraPickerField(stringResource(R.string.entrada_hora_salida), horaSalida) { horaSalida = it }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .toggleable(value = esDiaSiguiente, onValueChange = { esDiaSiguiente = it }),
-            verticalAlignment = Alignment.CenterVertically,
+        EntradaCheckboxRow(
+            checked = esDiaSiguiente,
+            onCheckedChange = { esDiaSiguiente = it },
+            label = stringResource(R.string.entrada_turno_nocturno),
         ) {
-            Checkbox(checked = esDiaSiguiente, onCheckedChange = null)
-            Text(stringResource(R.string.entrada_turno_nocturno), modifier = Modifier.weight(1f))
             IconButton(onClick = { mostrarInfoNocturno = true }) {
                 Icon(
                     Icons.Filled.Info,
@@ -206,11 +370,24 @@ private fun NuevaEntradaForm(
                 )
             }
         }
+        EntradaCheckboxRow(
+            checked = usarTarifaCustom,
+            onCheckedChange = { usarTarifaCustom = it },
+            label = stringResource(R.string.entrada_tarifa_distinta),
+        )
         if (horarioInvalido) {
             TextoError(stringResource(R.string.entrada_error_horario))
         }
         if (seSolapa) {
             TextoError(stringResource(R.string.entrada_error_solapa))
+        }
+        if (usarTarifaCustom) {
+            CampoDinero(
+                label = stringResource(R.string.tarifa_campo_precio, simbolo),
+                texto = tarifaCustomTexto,
+                onTextoChange = { tarifaCustomTexto = it },
+                mostrarErrores = mostrarErrores,
+            )
         }
         if (mostrarNotas) {
             OutlinedTextField(
@@ -222,33 +399,11 @@ private fun NuevaEntradaForm(
         } else {
             TextButton(onClick = { mostrarNotas = true }) { Text(stringResource(R.string.entrada_anadir_nota)) }
         }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .toggleable(value = usarTarifaCustom, onValueChange = { usarTarifaCustom = it }),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(checked = usarTarifaCustom, onCheckedChange = null)
-            Text(stringResource(R.string.entrada_tarifa_distinta))
-        }
-        if (usarTarifaCustom) {
-            CampoDinero(
-                label = stringResource(R.string.tarifa_campo_precio, simbolo),
-                texto = tarifaCustomTexto,
-                onTextoChange = { tarifaCustomTexto = it },
-                mostrarErrores = mostrarErrores,
-            )
-        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(
                 onClick = {
                     if (formularioValido) {
-                        onGuardar(
-                            candidato.copy(
-                                notas = notas.takeIf { mostrarNotas && it.isNotBlank() },
-                                precioPorHoraCustom = if (usarTarifaCustom) textoADinero(tarifaCustomTexto) else null,
-                            )
-                        )
+                        onGuardar(entradaParaGuardar)
                         horaEntrada = LocalTime.of(9, 0)
                         horaSalida = LocalTime.of(17, 0)
                         esDiaSiguiente = false

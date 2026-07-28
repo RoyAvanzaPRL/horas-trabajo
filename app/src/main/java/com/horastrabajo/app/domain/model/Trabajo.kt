@@ -5,4 +5,5 @@ data class Trabajo(
     val nombre: String,
     val nombreUsuario: String,
     val simboloMoneda: String = "€",
+    val fotoUri: String? = null,
 )

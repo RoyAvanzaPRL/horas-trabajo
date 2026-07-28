@@ -17,6 +17,7 @@ interface EntradaHorasRepository {
 
     /** Todas las entradas de [anio] (los 12 meses), para dashboards/resúmenes anuales. */
     fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<EntradaHoras>>
+    fun observeTodas(): Flow<List<EntradaHoras>>
     fun observePorFecha(trabajoId: Long, fecha: LocalDate): Flow<List<EntradaHoras>>
     suspend fun guardar(entrada: EntradaHoras): Long
     suspend fun eliminar(entrada: EntradaHoras)
@@ -40,6 +41,9 @@ class EntradaHorasRepositoryImpl(private val dao: EntradaHorasDao) : EntradaHora
         return dao.observeByTrabajoYRango(trabajoId, desde, hasta)
             .map { entidades -> entidades.map { it.toDomain() } }
     }
+
+    override fun observeTodas(): Flow<List<EntradaHoras>> =
+        dao.observeAll().map { entidades -> entidades.map { it.toDomain() } }
 
     override fun observePorFecha(trabajoId: Long, fecha: LocalDate): Flow<List<EntradaHoras>> =
         dao.observeByTrabajoYFecha(trabajoId, fecha).map { entidades -> entidades.map { it.toDomain() } }

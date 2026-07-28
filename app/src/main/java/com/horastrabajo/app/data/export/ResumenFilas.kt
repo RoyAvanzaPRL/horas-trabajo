@@ -77,7 +77,7 @@ fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaR
         }
     }
 
-    // filas += FilaResumen("")
+    filas += FilaResumen("")
     filas += FilaResumen(
         context.getString(R.string.export_total_horas_mes),
         if (resumen.dineroExtra.isNotEmpty()) {
@@ -97,6 +97,7 @@ fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaR
                 extra.monto.formateado(simbolo),
             )
         }
+        filas += FilaResumen("")
         filas += FilaResumen(
             context.getString(R.string.export_total_dinero_extra),
             resumen.totalDineroExtra.formateado(simbolo),

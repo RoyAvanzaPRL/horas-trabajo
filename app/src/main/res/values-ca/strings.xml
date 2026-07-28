@@ -14,6 +14,9 @@
     <string name="accion_entendido">Entesos</string>
     <string name="accion_deshacer">Desfés</string>
     <string name="accion_compartir">Comparteix</string>
+    <string name="accion_seguir_editando">Segueix editant</string>
+    <string name="accion_descartar_cambios">Descarta els canvis</string>
+    <string name="cambios_sin_guardar_titulo">Canvis sense desar</string>
 
     <!-- Camps de formulari compartits -->
     <string name="campo_obligatorio">Camp obligatori</string>
@@ -34,6 +37,17 @@
     <string name="trabajo_campo_nombre">Nom de la feina</string>
     <string name="trabajo_campo_tu_nombre">El teu nom</string>
     <string name="trabajo_campo_moneda">Moneda</string>
+    <string name="trabajo_foto_opcional">Foto opcional</string>
+    <string name="trabajo_elegir_foto">Tria foto</string>
+    <string name="trabajo_cambiar_foto">Canvia</string>
+    <string name="trabajo_quitar_foto">Treu</string>
+    <string name="trabajo_total_horas">Hores totals</string>
+    <string name="trabajo_total_dinero">Diners totals</string>
+    <string name="trabajo_tiempo_real">Temps real</string>
+    <string name="trabajo_meses_actividad">Mesos amb activitat</string>
+    <string name="trabajo_primer_registro">Primer registre</string>
+    <string name="trabajo_ultimo_registro">Últim registre: %1$s</string>
+    <string name="trabajo_sin_registros">Sense registres</string>
 
     <!-- Monedes -->
     <string name="moneda_euro">Euro</string>
@@ -52,11 +66,15 @@
     <!-- Pantalla: Mes -->
     <string name="mes_titulo">%1$s · %2$s %3$d</string>
     <string name="mes_ver_resumen">Mostra el resum i exporta</string>
+    <string name="mes_boton_resumen">Resum</string>
     <string name="mes_tarifa_etiqueta">Tarifa d\'aquest mes</string>
     <string name="mes_tarifa_valor">%1$s %2$s/hora</string>
     <string name="mes_tarifa_sin_fijar">sense fixar</string>
     <string name="mes_dinero_extra_titulo">Diners extra d\'aquest mes</string>
+    <string name="mes_editar_dinero_extra">Edita els diners extra</string>
     <string name="mes_eliminar_dinero_extra">Elimina els diners extra</string>
+    <string name="mes_eliminar_dinero_extra_titulo">Elimina els diners extra</string>
+    <string name="mes_eliminar_dinero_extra_mensaje">S\'eliminarà \"%1$s\" (%2$s). Aquesta acció es podrà desfer durant uns segons.</string>
     <string name="mes_dinero_extra_eliminado">Diners extra eliminats</string>
     <string name="mes_dinero_extra_fila">%1$d/%2$d · %3$s</string>
     <string name="mes_total_dinero">Total diners: %1$s</string>
@@ -78,10 +96,14 @@
     <string name="dinero_extra_titulo">Diners extra</string>
     <string name="dinero_extra_campo_cantidad">Quantitat (pot ser negativa)</string>
     <string name="dinero_extra_campo_descripcion">Descripció (p. ex. repartiment)</string>
+    <string name="dinero_extra_descartar_cambios_mensaje">Has canviat aquests diners extra. Vols seguir editant o descartar els canvis?</string>
 
     <!-- Formulari: hores del dia -->
     <string name="entrada_titulo">Hores del %1$s</string>
     <string name="entrada_anadir_turno">Afegeix un altre torn</string>
+    <string name="entrada_eliminar_titulo">Elimina el torn</string>
+    <string name="entrada_eliminar_mensaje">S\'eliminarà el torn %1$s. Aquesta acció es podrà desfer durant uns segons.</string>
+    <string name="entrada_descartar_cambios_mensaje">Has canviat aquest torn. Vols seguir editant o descartar els canvis?</string>
     <string name="entrada_turno_eliminado">Torn eliminat</string>
     <string name="entrada_rango_horas">%1$s - %2$s</string>
     <string name="entrada_sufijo_dia_siguiente">(+1 dia)</string>

@@ -6,12 +6,12 @@ import kotlin.math.roundToLong
 /**
  * Locale fijo para formatear cifras (importes y horas). Es deliberadamente independiente
  * del idioma de la app y del idioma del dispositivo: la app muestra siempre coma decimal,
- * de modo que un importe (`1234,50 €`) y unas horas (`7,5h`) nunca se contradigan entre sí.
+ * de modo que un importe (`1234,50 €`) y unas horas (`7,50h`) nunca se contradigan entre sí.
  */
 private val LOCALE_CIFRAS: Locale = Locale("es", "ES")
 
-/** Horas en formato `7,5h`, con la misma coma decimal que [Dinero.formateado]. */
-fun formatearHoras(horas: Double): String = String.format(LOCALE_CIFRAS, "%.1fh", horas)
+/** Horas en formato `7,50h`, con la misma coma decimal que [Dinero.formateado]. */
+fun formatearHoras(horas: Double): String = String.format(LOCALE_CIFRAS, "%.2fh", horas)
 
 /** Importe sin símbolo, en formato `8,50`, para prellenar campos de texto editables. */
 fun formatearImporteEditable(dinero: Dinero): String =

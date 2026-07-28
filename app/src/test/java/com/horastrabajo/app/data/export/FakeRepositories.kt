@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 /**
@@ -44,6 +45,7 @@ class FakeEntradaHorasRepository : EntradaHorasRepository {
 
     override fun observePorMes(trabajoId: Long, anio: Int, mes: Int): Flow<List<EntradaHoras>> = error("no usado en este test")
     override fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<EntradaHoras>> = error("no usado en este test")
+    override fun observeTodas(): Flow<List<EntradaHoras>> = flowOf(datos.toList())
     override fun observePorFecha(trabajoId: Long, fecha: LocalDate): Flow<List<EntradaHoras>> = error("no usado en este test")
 
     override suspend fun guardar(entrada: EntradaHoras): Long {
@@ -72,6 +74,7 @@ class FakeTarifaMensualRepository : TarifaMensualRepository {
     override suspend fun obtenerTarifaVigente(trabajoId: Long, anio: Int, mes: Int): TarifaMensual? = error("no usado en este test")
     override suspend fun fijarTarifaDelMes(trabajoId: Long, anio: Int, mes: Int, precioPorHora: Dinero): Unit = error("no usado en este test")
     override fun observeTodasDelTrabajo(trabajoId: Long): Flow<List<TarifaMensual>> = error("no usado en este test")
+    override fun observeTodas(): Flow<List<TarifaMensual>> = flowOf(datos.toList())
 
     override suspend fun obtenerTodasDelTrabajo(trabajoId: Long): List<TarifaMensual> =
         datos.filter { it.trabajoId == trabajoId }
@@ -90,6 +93,7 @@ class FakeDineroExtraRepository : DineroExtraRepository {
 
     override fun observePorMes(trabajoId: Long, anio: Int, mes: Int): Flow<List<DineroExtra>> = error("no usado en este test")
     override fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<DineroExtra>> = error("no usado en este test")
+    override fun observeTodo(): Flow<List<DineroExtra>> = flowOf(datos.toList())
 
     override suspend fun guardar(dineroExtra: DineroExtra): Long {
         val id = if (dineroExtra.id == 0L) siguienteId.getAndIncrement() else dineroExtra.id

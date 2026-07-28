@@ -19,6 +19,9 @@
     <string name="accion_entendido">Entendido</string>
     <string name="accion_deshacer">Deshacer</string>
     <string name="accion_compartir">Compartir</string>
+    <string name="accion_seguir_editando">Seguir editando</string>
+    <string name="accion_descartar_cambios">Descartar cambios</string>
+    <string name="cambios_sin_guardar_titulo">Cambios sin guardar</string>
 
     <!-- Campos de formulario compartidos -->
     <string name="campo_obligatorio">Campo obligatorio</string>
@@ -39,6 +42,17 @@
     <string name="trabajo_campo_nombre">Nombre del trabajo</string>
     <string name="trabajo_campo_tu_nombre">Tu nombre</string>
     <string name="trabajo_campo_moneda">Moneda</string>
+    <string name="trabajo_foto_opcional">Foto opcional</string>
+    <string name="trabajo_elegir_foto">Elegir foto</string>
+    <string name="trabajo_cambiar_foto">Cambiar</string>
+    <string name="trabajo_quitar_foto">Quitar</string>
+    <string name="trabajo_total_horas">Horas totales</string>
+    <string name="trabajo_total_dinero">Dinero total</string>
+    <string name="trabajo_tiempo_real">Tiempo real</string>
+    <string name="trabajo_meses_actividad">Meses con actividad</string>
+    <string name="trabajo_primer_registro">Primer registro</string>
+    <string name="trabajo_ultimo_registro">Último registro: %1$s</string>
+    <string name="trabajo_sin_registros">Sin registros</string>
 
     <!-- Monedas -->
     <string name="moneda_euro">Euro</string>
@@ -57,11 +71,15 @@
     <!-- Pantalla: Mes -->
     <string name="mes_titulo">%1$s · %2$s %3$d</string>
     <string name="mes_ver_resumen">Ver resumen y exportar</string>
+    <string name="mes_boton_resumen">Resumen</string>
     <string name="mes_tarifa_etiqueta">Tarifa este mes</string>
     <string name="mes_tarifa_valor">%1$s %2$s/hora</string>
     <string name="mes_tarifa_sin_fijar">sin fijar</string>
     <string name="mes_dinero_extra_titulo">Dinero extra este mes</string>
+    <string name="mes_editar_dinero_extra">Editar dinero extra</string>
     <string name="mes_eliminar_dinero_extra">Eliminar dinero extra</string>
+    <string name="mes_eliminar_dinero_extra_titulo">Eliminar dinero extra</string>
+    <string name="mes_eliminar_dinero_extra_mensaje">Se eliminará \"%1$s\" (%2$s). Esta acción se podrá deshacer unos segundos.</string>
     <string name="mes_dinero_extra_eliminado">Dinero extra eliminado</string>
     <string name="mes_dinero_extra_fila">%1$d/%2$d · %3$s</string>
     <string name="mes_total_dinero">Total dinero: %1$s</string>
@@ -83,10 +101,14 @@
     <string name="dinero_extra_titulo">Dinero extra</string>
     <string name="dinero_extra_campo_cantidad">Cantidad (puede ser negativa)</string>
     <string name="dinero_extra_campo_descripcion">Descripción (ej. reparto)</string>
+    <string name="dinero_extra_descartar_cambios_mensaje">Has cambiado este dinero extra. ¿Quieres seguir editando o descartar los cambios?</string>
 
     <!-- Formulario: horas del día -->
     <string name="entrada_titulo">Horas del %1$s</string>
     <string name="entrada_anadir_turno">Añadir otro turno</string>
+    <string name="entrada_eliminar_titulo">Eliminar turno</string>
+    <string name="entrada_eliminar_mensaje">Se eliminará el turno %1$s. Esta acción se podrá deshacer unos segundos.</string>
+    <string name="entrada_descartar_cambios_mensaje">Has cambiado este turno. ¿Quieres seguir editando o descartar los cambios?</string>
     <string name="entrada_turno_eliminado">Turno eliminado</string>
     <string name="entrada_rango_horas">%1$s - %2$s</string>
     <string name="entrada_sufijo_dia_siguiente">(+1 día)</string>

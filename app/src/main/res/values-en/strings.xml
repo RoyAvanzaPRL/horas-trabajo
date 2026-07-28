@@ -14,6 +14,9 @@
     <string name="accion_entendido">Got it</string>
     <string name="accion_deshacer">Undo</string>
     <string name="accion_compartir">Share</string>
+    <string name="accion_seguir_editando">Keep editing</string>
+    <string name="accion_descartar_cambios">Discard changes</string>
+    <string name="cambios_sin_guardar_titulo">Unsaved changes</string>
 
     <!-- Shared form fields -->
     <string name="campo_obligatorio">Required field</string>
@@ -34,6 +37,17 @@
     <string name="trabajo_campo_nombre">Job name</string>
     <string name="trabajo_campo_tu_nombre">Your name</string>
     <string name="trabajo_campo_moneda">Currency</string>
+    <string name="trabajo_foto_opcional">Optional photo</string>
+    <string name="trabajo_elegir_foto">Choose photo</string>
+    <string name="trabajo_cambiar_foto">Change</string>
+    <string name="trabajo_quitar_foto">Remove</string>
+    <string name="trabajo_total_horas">Total hours</string>
+    <string name="trabajo_total_dinero">Total money</string>
+    <string name="trabajo_tiempo_real">Real time</string>
+    <string name="trabajo_meses_actividad">Active months</string>
+    <string name="trabajo_primer_registro">First record</string>
+    <string name="trabajo_ultimo_registro">Last record: %1$s</string>
+    <string name="trabajo_sin_registros">No records</string>
 
     <!-- Currencies -->
     <string name="moneda_euro">Euro</string>
@@ -52,11 +66,15 @@
     <!-- Screen: Month -->
     <string name="mes_titulo">%1$s · %2$s %3$d</string>
     <string name="mes_ver_resumen">View summary and export</string>
+    <string name="mes_boton_resumen">Summary</string>
     <string name="mes_tarifa_etiqueta">Rate this month</string>
     <string name="mes_tarifa_valor">%1$s %2$s/hour</string>
     <string name="mes_tarifa_sin_fijar">not set</string>
     <string name="mes_dinero_extra_titulo">Extra money this month</string>
+    <string name="mes_editar_dinero_extra">Edit extra money</string>
     <string name="mes_eliminar_dinero_extra">Delete extra money</string>
+    <string name="mes_eliminar_dinero_extra_titulo">Delete extra money</string>
+    <string name="mes_eliminar_dinero_extra_mensaje">\"%1$s\" (%2$s) will be deleted. You can undo this for a few seconds.</string>
     <string name="mes_dinero_extra_eliminado">Extra money deleted</string>
     <string name="mes_dinero_extra_fila">%1$d/%2$d · %3$s</string>
     <string name="mes_total_dinero">Total money: %1$s</string>
@@ -78,10 +96,14 @@
     <string name="dinero_extra_titulo">Extra money</string>
     <string name="dinero_extra_campo_cantidad">Amount (can be negative)</string>
     <string name="dinero_extra_campo_descripcion">Description (e.g. delivery)</string>
+    <string name="dinero_extra_descartar_cambios_mensaje">You changed this extra money entry. Do you want to keep editing or discard the changes?</string>
 
     <!-- Form: hours for a day -->
     <string name="entrada_titulo">Hours for %1$s</string>
     <string name="entrada_anadir_turno">Add another shift</string>
+    <string name="entrada_eliminar_titulo">Delete shift</string>
+    <string name="entrada_eliminar_mensaje">Shift %1$s will be deleted. You can undo this for a few seconds.</string>
+    <string name="entrada_descartar_cambios_mensaje">You changed this shift. Do you want to keep editing or discard the changes?</string>
     <string name="entrada_turno_eliminado">Shift deleted</string>
     <string name="entrada_rango_horas">%1$s - %2$s</string>
     <string name="entrada_sufijo_dia_siguiente">(+1 day)</string>

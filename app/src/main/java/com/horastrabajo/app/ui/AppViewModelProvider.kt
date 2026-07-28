@@ -21,7 +21,12 @@ object AppViewModelProvider {
 
     val Factory = viewModelFactory {
         initializer {
-            TrabajosViewModel(horasTrabajoApp().trabajoRepository)
+            TrabajosViewModel(
+                trabajoRepository = horasTrabajoApp().trabajoRepository,
+                entradaHorasRepository = horasTrabajoApp().entradaHorasRepository,
+                dineroExtraRepository = horasTrabajoApp().dineroExtraRepository,
+                tarifaMensualRepository = horasTrabajoApp().tarifaMensualRepository,
+            )
         }
         initializer {
             AjustesViewModel(

@@ -12,6 +12,7 @@ interface DineroExtraRepository {
 
     /** Todo el dinero extra de [anio] (los 12 meses), para dashboards/resúmenes anuales. */
     fun observePorAnio(trabajoId: Long, anio: Int): Flow<List<DineroExtra>>
+    fun observeTodo(): Flow<List<DineroExtra>>
     suspend fun guardar(dineroExtra: DineroExtra): Long
     suspend fun eliminar(dineroExtra: DineroExtra)
 
@@ -34,6 +35,9 @@ class DineroExtraRepositoryImpl(private val dao: DineroExtraDao) : DineroExtraRe
         return dao.observeByTrabajoYRango(trabajoId, desde, hasta)
             .map { entidades -> entidades.map { it.toDomain() } }
     }
+
+    override fun observeTodo(): Flow<List<DineroExtra>> =
+        dao.observeAll().map { entidades -> entidades.map { it.toDomain() } }
 
     override suspend fun guardar(dineroExtra: DineroExtra): Long =
         if (dineroExtra.id == 0L) dao.insert(dineroExtra.toEntity()) else {

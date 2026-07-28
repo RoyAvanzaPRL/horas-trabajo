@@ -55,6 +55,10 @@ class MesViewModel(
     }
 
     fun agregarDineroExtra(dineroExtra: DineroExtra) {
+        guardarDineroExtra(dineroExtra)
+    }
+
+    fun guardarDineroExtra(dineroExtra: DineroExtra) {
         viewModelScope.launch { dineroExtraRepository.guardar(dineroExtra) }
     }
 

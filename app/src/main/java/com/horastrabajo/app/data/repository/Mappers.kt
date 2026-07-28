@@ -10,9 +10,21 @@ import com.horastrabajo.app.domain.model.EntradaHoras
 import com.horastrabajo.app.domain.model.TarifaMensual
 import com.horastrabajo.app.domain.model.Trabajo
 
-fun TrabajoEntity.toDomain() = Trabajo(id = id, nombre = nombre, nombreUsuario = nombreUsuario, simboloMoneda = simboloMoneda)
+fun TrabajoEntity.toDomain() = Trabajo(
+    id = id,
+    nombre = nombre,
+    nombreUsuario = nombreUsuario,
+    simboloMoneda = simboloMoneda,
+    fotoUri = fotoUri,
+)
 
-fun Trabajo.toEntity() = TrabajoEntity(id = id, nombre = nombre, nombreUsuario = nombreUsuario, simboloMoneda = simboloMoneda)
+fun Trabajo.toEntity() = TrabajoEntity(
+    id = id,
+    nombre = nombre,
+    nombreUsuario = nombreUsuario,
+    simboloMoneda = simboloMoneda,
+    fotoUri = fotoUri,
+)
 
 fun EntradaHorasEntity.toDomain() = EntradaHoras(
     id = id,

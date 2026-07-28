@@ -29,6 +29,9 @@ interface TarifaMensualDao {
     @Query("SELECT * FROM tarifa_mensual WHERE trabajoId = :trabajoId")
     fun observeAllByTrabajo(trabajoId: Long): Flow<List<TarifaMensualEntity>>
 
+    @Query("SELECT * FROM tarifa_mensual ORDER BY trabajoId ASC, anio ASC, mes ASC")
+    fun observeAll(): Flow<List<TarifaMensualEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(tarifa: TarifaMensualEntity): Long
 

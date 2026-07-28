@@ -21,6 +21,7 @@ interface TarifaMensualRepository {
 
     /** Reactivo: para dashboards que necesitan enterarse cuando se fija/cambia una tarifa. */
     fun observeTodasDelTrabajo(trabajoId: Long): Flow<List<TarifaMensual>>
+    fun observeTodas(): Flow<List<TarifaMensual>>
 }
 
 class TarifaMensualRepositoryImpl(private val dao: TarifaMensualDao) : TarifaMensualRepository {
@@ -42,4 +43,7 @@ class TarifaMensualRepositoryImpl(private val dao: TarifaMensualDao) : TarifaMen
 
     override fun observeTodasDelTrabajo(trabajoId: Long): Flow<List<TarifaMensual>> =
         dao.observeAllByTrabajo(trabajoId).map { entidades -> entidades.map { it.toDomain() } }
+
+    override fun observeTodas(): Flow<List<TarifaMensual>> =
+        dao.observeAll().map { entidades -> entidades.map { it.toDomain() } }
 }

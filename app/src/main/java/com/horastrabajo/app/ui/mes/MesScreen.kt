@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,7 +53,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.horastrabajo.app.R
 import com.horastrabajo.app.domain.ResumenDia
@@ -92,6 +96,12 @@ fun MesScreen(
     var diaSeleccionado by remember { mutableStateOf<LocalDate?>(null) }
     var editandoTarifa by remember { mutableStateOf(false) }
     var agregandoDineroExtra by remember { mutableStateOf(false) }
+    var dineroExtraEnEdicion by remember { mutableStateOf<DineroExtra?>(null) }
+    var dineroExtraAEliminar by remember { mutableStateOf<DineroExtra?>(null) }
+    var solicitudCierreEntradaSheet by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var dineroExtraEditadoTieneCambios by remember { mutableStateOf(false) }
+    var confirmarDescartarDineroExtra by remember { mutableStateOf(false) }
+    var cerrarDineroExtraTrasDescartar by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val locale = localeActual()
@@ -117,14 +127,6 @@ fun MesScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.accion_volver),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onVerResumen) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.List,
-                            contentDescription = stringResource(R.string.mes_ver_resumen),
                         )
                     }
                 },
@@ -201,7 +203,10 @@ fun MesScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(stringResource(R.string.mes_dinero_extra_titulo))
-                        TextButton(onClick = { agregandoDineroExtra = true }) {
+                        TextButton(onClick = {
+                            dineroExtraEnEdicion = null
+                            agregandoDineroExtra = true
+                        }) {
                             Text(stringResource(R.string.accion_anadir))
                         }
                     }
@@ -221,18 +226,20 @@ fun MesScreen(
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(extra.monto.formateado(simbolo))
-                                IconButton(onClick = {
-                                    mesViewModel.eliminarDineroExtra(extra)
-                                    scope.launch {
-                                        val resultado = snackbarHostState.showSnackbar(
-                                            message = textoDineroExtraEliminado,
-                                            actionLabel = textoDeshacer,
-                                            duration = SnackbarDuration.Short,
+                                if (dineroExtraEnEdicion?.id != extra.id) {
+                                    IconButton(onClick = {
+                                        dineroExtraEnEdicion = extra
+                                        dineroExtraEditadoTieneCambios = false
+                                        agregandoDineroExtra = false
+                                    }) {
+                                        Icon(
+                                            Icons.Filled.Edit,
+                                            contentDescription = stringResource(R.string.mes_editar_dinero_extra),
                                         )
-                                        if (resultado == SnackbarResult.ActionPerformed) {
-                                            mesViewModel.agregarDineroExtra(extra.copy(id = 0))
-                                        }
                                     }
+                                }
+                                IconButton(onClick = {
+                                    dineroExtraAEliminar = extra
                                 }) {
                                     Icon(
                                         Icons.Filled.Delete,
@@ -246,19 +253,33 @@ fun MesScreen(
 
                 item {
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                        CifraDestacada(
-                            stringResource(
-                                R.string.mes_total_dinero,
-                                resumenActual.totalDinero.formateado(simbolo),
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            CifraDestacada(
+                                stringResource(
+                                    R.string.mes_total_dinero,
+                                    resumenActual.totalDinero.formateado(simbolo),
+                                )
                             )
-                        )
-                        Text(
-                            stringResource(R.string.mes_total_horas, formatearHoras(resumenActual.totalHoras)),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 2.dp),
-                        )
+                            Text(
+                                stringResource(R.string.mes_total_horas, formatearHoras(resumenActual.totalHoras)),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 2.dp),
+                            )
+                        }
+                        FilledTonalButton(onClick = onVerResumen) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.List,
+                                contentDescription = null,
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
+                            Text(stringResource(R.string.mes_boton_resumen))
+                        }
                     }
                 }
             }
@@ -269,7 +290,7 @@ fun MesScreen(
         LaunchedEffect(fecha) { entradaFormViewModel.cargar(trabajoId, fecha) }
         val entradasDelDia by entradaFormViewModel.entradasDelDia.collectAsState()
         ModalBottomSheet(
-            onDismissRequest = { diaSeleccionado = null },
+            onDismissRequest = { solicitudCierreEntradaSheet?.invoke() ?: run { diaSeleccionado = null } },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         ) {
             EntradaFormSheet(
@@ -279,6 +300,8 @@ fun MesScreen(
                 entradasExistentes = entradasDelDia,
                 onGuardar = { entradaFormViewModel.guardar(it) },
                 onEliminar = { entradaFormViewModel.eliminar(it) },
+                onCerrar = { diaSeleccionado = null },
+                onSolicitudCierreChange = { solicitudCierreEntradaSheet = it },
             )
         }
     }
@@ -295,20 +318,106 @@ fun MesScreen(
         )
     }
 
-    if (agregandoDineroExtra) {
+    dineroExtraAEliminar?.let { extra ->
+        AlertDialog(
+            onDismissRequest = { dineroExtraAEliminar = null },
+            title = { Text(stringResource(R.string.mes_eliminar_dinero_extra_titulo)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.mes_eliminar_dinero_extra_mensaje,
+                        extra.descripcion,
+                        extra.monto.formateado(simbolo),
+                    )
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    dineroExtraAEliminar = null
+                    mesViewModel.eliminarDineroExtra(extra)
+                    if (dineroExtraEnEdicion?.id == extra.id) dineroExtraEnEdicion = null
+                    scope.launch {
+                        val resultado = snackbarHostState.showSnackbar(
+                            message = textoDineroExtraEliminado,
+                            actionLabel = textoDeshacer,
+                            duration = SnackbarDuration.Short,
+                        )
+                        if (resultado == SnackbarResult.ActionPerformed) {
+                            mesViewModel.agregarDineroExtra(extra.copy(id = 0))
+                        }
+                    }
+                }) { Text(stringResource(R.string.accion_eliminar)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { dineroExtraAEliminar = null }) {
+                    Text(stringResource(R.string.accion_cancelar))
+                }
+            },
+        )
+    }
+
+    fun cerrarFormularioDineroExtra() {
+        agregandoDineroExtra = false
+        dineroExtraEnEdicion = null
+        dineroExtraEditadoTieneCambios = false
+        confirmarDescartarDineroExtra = false
+        cerrarDineroExtraTrasDescartar = false
+    }
+    fun solicitarCerrarFormularioDineroExtra(cerrarSheet: Boolean) {
+        if (dineroExtraEnEdicion != null && dineroExtraEditadoTieneCambios) {
+            cerrarDineroExtraTrasDescartar = cerrarSheet
+            confirmarDescartarDineroExtra = true
+        } else {
+            cerrarFormularioDineroExtra()
+        }
+    }
+
+    if (confirmarDescartarDineroExtra) {
+        AlertDialog(
+            onDismissRequest = { confirmarDescartarDineroExtra = false },
+            title = { Text(stringResource(R.string.cambios_sin_guardar_titulo)) },
+            text = { Text(stringResource(R.string.dinero_extra_descartar_cambios_mensaje)) },
+            confirmButton = {
+                TextButton(onClick = { confirmarDescartarDineroExtra = false }) {
+                    Text(stringResource(R.string.accion_seguir_editando))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    val cerrar = cerrarDineroExtraTrasDescartar
+                    cerrarFormularioDineroExtra()
+                    if (!cerrar) agregandoDineroExtra = false
+                }) {
+                    Text(stringResource(R.string.accion_descartar_cambios))
+                }
+            },
+        )
+    }
+
+    if (agregandoDineroExtra || dineroExtraEnEdicion != null) {
+        val extraEnEdicion = dineroExtraEnEdicion
         ModalBottomSheet(
-            onDismissRequest = { agregandoDineroExtra = false },
+            onDismissRequest = { solicitarCerrarFormularioDineroExtra(cerrarSheet = true) },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         ) {
             DineroExtraFormContent(
-                fechaPorDefecto = LocalDate.now().let { if (YearMonth.from(it) == yearMonth) it else yearMonth.atDay(1) },
+                dineroExtraInicial = extraEnEdicion,
+                fechaPorDefecto = extraEnEdicion?.fecha
+                    ?: LocalDate.now().let { if (YearMonth.from(it) == yearMonth) it else yearMonth.atDay(1) },
+                onDirtyChange = { dineroExtraEditadoTieneCambios = it },
                 onConfirmar = { fecha, monto, descripcion ->
-                    mesViewModel.agregarDineroExtra(
-                        DineroExtra(trabajoId = trabajoId, fecha = fecha, monto = monto, descripcion = descripcion)
+                    mesViewModel.guardarDineroExtra(
+                        DineroExtra(
+                            id = extraEnEdicion?.id ?: 0L,
+                            trabajoId = trabajoId,
+                            fecha = fecha,
+                            monto = monto,
+                            descripcion = descripcion,
+                        )
                     )
-                    agregandoDineroExtra = false
+                    cerrarFormularioDineroExtra()
                 },
-                onCancelar = { agregandoDineroExtra = false },
+                onCancelar = { solicitarCerrarFormularioDineroExtra(cerrarSheet = false) },
             )
         }
     }
@@ -412,9 +521,14 @@ private fun DiaRow(
 private fun MarcadorDia(simbolo: String, descripcion: String, color: Color = Color.Unspecified) {
     Text(
         text = simbolo,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.labelSmall,
         color = color,
+        fontSize = 11.sp,
+        lineHeight = 12.sp,
+        fontWeight = FontWeight.SemiBold,
+        textAlign = TextAlign.Center,
         modifier = Modifier
+            .widthIn(min = 18.dp)
             .padding(end = 4.dp)
             .clearAndSetSemantics { contentDescription = descripcion },
     )
@@ -455,15 +569,30 @@ private fun TarifaDialog(precioActual: Dinero?, simbolo: String, onConfirmar: (D
  */
 @Composable
 private fun DineroExtraFormContent(
+    dineroExtraInicial: DineroExtra? = null,
     fechaPorDefecto: LocalDate,
+    onDirtyChange: (Boolean) -> Unit = {},
     onConfirmar: (LocalDate, Dinero, String) -> Unit,
     onCancelar: () -> Unit,
 ) {
-    var fecha by remember { mutableStateOf(fechaPorDefecto) }
-    var texto by remember { mutableStateOf("") }
-    var descripcion by remember { mutableStateOf("") }
+    var fecha by remember(dineroExtraInicial?.id, fechaPorDefecto) { mutableStateOf(fechaPorDefecto) }
+    var texto by remember(dineroExtraInicial?.id) {
+        mutableStateOf(dineroExtraInicial?.monto?.let { dineroATexto(it) } ?: "")
+    }
+    var descripcion by remember(dineroExtraInicial?.id) {
+        mutableStateOf(dineroExtraInicial?.descripcion.orEmpty())
+    }
     var mostrarErrores by remember { mutableStateOf(false) }
     val dineroValido = textoADinero(texto)
+    val hayCambiosEdicion = dineroExtraInicial?.let { inicial ->
+        fecha != inicial.fecha ||
+            dineroValido != inicial.monto ||
+            descripcion.trim() != inicial.descripcion
+    } ?: false
+
+    LaunchedEffect(hayCambiosEdicion) {
+        onDirtyChange(hayCambiosEdicion)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth().padding(16.dp),
