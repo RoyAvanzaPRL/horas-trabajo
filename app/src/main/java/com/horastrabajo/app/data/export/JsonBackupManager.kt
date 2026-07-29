@@ -5,6 +5,11 @@ import com.horastrabajo.app.data.export.dto.DineroExtraDto
 import com.horastrabajo.app.data.export.dto.EntradaHorasDto
 import com.horastrabajo.app.data.export.dto.TarifaMensualDto
 import com.horastrabajo.app.data.export.dto.TrabajoDto
+import com.horastrabajo.app.data.local.AppDatabase
+import com.horastrabajo.app.data.local.entity.DineroExtraEntity
+import com.horastrabajo.app.data.local.entity.EntradaHorasEntity
+import com.horastrabajo.app.data.local.entity.TarifaMensualEntity
+import com.horastrabajo.app.data.local.entity.TrabajoEntity
 import com.horastrabajo.app.data.repository.DineroExtraRepository
 import com.horastrabajo.app.data.repository.EntradaHorasRepository
 import com.horastrabajo.app.data.repository.TarifaMensualRepository
@@ -12,8 +17,6 @@ import com.horastrabajo.app.data.repository.TrabajoRepository
 import com.horastrabajo.app.domain.model.Dinero
 import com.horastrabajo.app.domain.model.DineroExtra
 import com.horastrabajo.app.domain.model.EntradaHoras
-import com.horastrabajo.app.domain.model.TarifaMensual
-import com.horastrabajo.app.domain.model.Trabajo
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import java.time.LocalDate
@@ -25,6 +28,7 @@ import java.time.LocalTime
  * (no intenta fusionar con trabajos existentes del mismo nombre).
  */
 class JsonBackupManager(
+    private val database: AppDatabase,
     private val trabajoRepository: TrabajoRepository,
     private val entradaHorasRepository: EntradaHorasRepository,
     private val tarifaMensualRepository: TarifaMensualRepository,
@@ -57,27 +61,32 @@ class JsonBackupManager(
 
     suspend fun importarTodo(contenidoJson: String) {
         val backup = json.decodeFromString(BackupDto.serializer(), contenidoJson)
+        val trabajos = mutableListOf<TrabajoEntity>()
+        val entradas = mutableListOf<List<EntradaHorasEntity>>()
+        val tarifas = mutableListOf<List<TarifaMensualEntity>>()
+        val dinerosExtra = mutableListOf<List<DineroExtraEntity>>()
         for (trabajoDto in backup.trabajos) {
-            val nuevoTrabajoId = trabajoRepository.guardar(
-                Trabajo(
+            trabajos.add(
+                TrabajoEntity(
                     nombre = trabajoDto.nombre,
                     nombreUsuario = trabajoDto.nombreUsuario,
                     simboloMoneda = trabajoDto.simboloMoneda,
                 )
             )
-            entradaHorasRepository.guardarVarias(trabajoDto.entradas.map { it.toDomain(nuevoTrabajoId) })
-            tarifaMensualRepository.guardarVarias(
+            entradas.add(trabajoDto.entradas.map { it.toEntity() })
+            tarifas.add(
                 trabajoDto.tarifas.map { dto ->
-                    TarifaMensual(
-                        trabajoId = nuevoTrabajoId,
+                    TarifaMensualEntity(
+                        trabajoId = 0L,
                         anio = dto.anio,
                         mes = dto.mes,
-                        precioPorHora = Dinero(dto.precioPorHoraCentimos),
+                        precioPorHoraCentimos = dto.precioPorHoraCentimos,
                     )
                 }
             )
-            dineroExtraRepository.guardarVarios(trabajoDto.dineroExtra.map { it.toDomain(nuevoTrabajoId) })
+            dinerosExtra.add(trabajoDto.dineroExtra.map { it.toEntity() })
         }
+        database.importarTrabajosCompletos(trabajos, entradas, tarifas, dinerosExtra)
     }
 }
 
@@ -112,5 +121,22 @@ private fun DineroExtraDto.toDomain(trabajoId: Long) = DineroExtra(
     trabajoId = trabajoId,
     fecha = LocalDate.parse(fechaIso),
     monto = Dinero(montoCentimos),
+    descripcion = descripcion,
+)
+
+private fun EntradaHorasDto.toEntity() = EntradaHorasEntity(
+    trabajoId = 0L,
+    fecha = LocalDate.parse(fechaIso),
+    horaEntrada = LocalTime.parse(horaEntradaIso),
+    horaSalida = LocalTime.parse(horaSalidaIso),
+    esDiaSiguiente = esDiaSiguiente,
+    notas = notas,
+    precioPorHoraCustomCentimos = precioPorHoraCustomCentimos,
+)
+
+private fun DineroExtraDto.toEntity() = DineroExtraEntity(
+    trabajoId = 0L,
+    fecha = LocalDate.parse(fechaIso),
+    montoCentimos = montoCentimos,
     descripcion = descripcion,
 )

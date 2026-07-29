@@ -3,6 +3,7 @@ package com.horastrabajo.app.ui.trabajos
 import android.content.Intent
 import android.net.Uri
 import android.widget.ImageView
+import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,11 +42,14 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -80,6 +84,8 @@ fun TrabajosScreen(
     var mostrarDialogoNuevo by remember { mutableStateOf(false) }
     var trabajoEditando by remember { mutableStateOf<Trabajo?>(null) }
     var trabajoAEliminar by remember { mutableStateOf<Trabajo?>(null) }
+    var trabajoNuevoTieneCambios by remember { mutableStateOf(false) }
+    var trabajoEditandoTieneCambios by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -122,9 +128,19 @@ fun TrabajosScreen(
     }
 
     if (mostrarDialogoNuevo) {
+        var latestNuevoConfirmValueChange by remember { mutableStateOf({ _: SheetValue -> true }) }
+        val nuevoSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { targetValue -> latestNuevoConfirmValueChange(targetValue) },
+        )
+        SideEffect {
+            latestNuevoConfirmValueChange = { targetValue ->
+                targetValue != SheetValue.Hidden || !trabajoNuevoTieneCambios
+            }
+        }
         ModalBottomSheet(
             onDismissRequest = { mostrarDialogoNuevo = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = nuevoSheetState,
         ) {
             TrabajoFormSheetContent(
                 titulo = stringResource(R.string.trabajo_nuevo),
@@ -132,19 +148,31 @@ fun TrabajosScreen(
                 nombreUsuarioInicial = "",
                 simboloInicial = "€",
                 fotoUriInicial = null,
+                esEdicion = false,
                 onConfirmar = { nombre, nombreUsuario, simbolo, fotoUri ->
                     viewModel.crearTrabajo(nombre, nombreUsuario, simbolo, fotoUri)
                     mostrarDialogoNuevo = false
                 },
                 onCancelar = { mostrarDialogoNuevo = false },
+                onDirtyChange = { trabajoNuevoTieneCambios = it },
             )
         }
     }
 
     trabajoEditando?.let { trabajo ->
+        var latestEditandoConfirmValueChange by remember { mutableStateOf({ _: SheetValue -> true }) }
+        val editandoSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { targetValue -> latestEditandoConfirmValueChange(targetValue) },
+        )
+        SideEffect {
+            latestEditandoConfirmValueChange = { targetValue ->
+                targetValue != SheetValue.Hidden || !trabajoEditandoTieneCambios
+            }
+        }
         ModalBottomSheet(
             onDismissRequest = { trabajoEditando = null },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = editandoSheetState,
         ) {
             TrabajoFormSheetContent(
                 titulo = stringResource(R.string.trabajo_editar),
@@ -152,11 +180,13 @@ fun TrabajosScreen(
                 nombreUsuarioInicial = trabajo.nombreUsuario,
                 simboloInicial = trabajo.simboloMoneda,
                 fotoUriInicial = trabajo.fotoUri,
+                esEdicion = true,
                 onConfirmar = { nombre, nombreUsuario, simbolo, fotoUri ->
                     viewModel.actualizarTrabajo(trabajo, nombre, nombreUsuario, simbolo, fotoUri)
                     trabajoEditando = null
                 },
                 onCancelar = { trabajoEditando = null },
+                onDirtyChange = { trabajoEditandoTieneCambios = it },
             )
         }
     }
@@ -324,14 +354,24 @@ private fun TrabajoCard(
 
 @Composable
 private fun TrabajoFoto(fotoUri: String?, nombre: String, modifier: Modifier = Modifier) {
-    if (fotoUri != null) {
+    var mostrarIniciales by remember(fotoUri) { mutableStateOf(fotoUri == null) }
+
+    if (fotoUri != null && !mostrarIniciales) {
         AndroidView(
             factory = { context ->
                 ImageView(context).apply {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                 }
             },
-            update = { imageView -> imageView.setImageURI(Uri.parse(fotoUri)) },
+            update = { imageView ->
+                try {
+                    val uri = Uri.parse(fotoUri)
+                    imageView.setImageURI(uri)
+                    if (imageView.drawable == null) mostrarIniciales = true
+                } catch (_: SecurityException) {
+                    mostrarIniciales = true
+                }
+            },
             modifier = modifier.clip(MaterialTheme.shapes.medium),
         )
     } else {
@@ -423,8 +463,10 @@ private fun TrabajoFormSheetContent(
     nombreUsuarioInicial: String,
     simboloInicial: String,
     fotoUriInicial: String?,
+    esEdicion: Boolean,
     onConfirmar: (String, String, String, String?) -> Unit,
     onCancelar: () -> Unit,
+    onDirtyChange: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     var nombre by remember { mutableStateOf(nombreInicial) }
@@ -435,7 +477,18 @@ private fun TrabajoFormSheetContent(
     var fotoUri by remember { mutableStateOf(fotoUriInicial) }
     var monedaExpandida by remember { mutableStateOf(false) }
     var mostrarErrores by remember { mutableStateOf(false) }
+    var confirmarDescartarCambios by remember { mutableStateOf(false) }
     val esValido = nombre.isNotBlank() && nombreUsuario.isNotBlank()
+    val hayCambios = esEdicion && (nombre != nombreInicial || nombreUsuario != nombreUsuarioInicial ||
+        simbolo != simboloInicial || fotoUri != fotoUriInicial)
+
+    LaunchedEffect(hayCambios) {
+        onDirtyChange(hayCambios)
+    }
+
+    BackHandler(enabled = hayCambios) {
+        confirmarDescartarCambios = true
+    }
     val selectorFoto = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
             try {
@@ -539,7 +592,30 @@ private fun TrabajoFormSheetContent(
                     if (esValido) onConfirmar(nombre, nombreUsuario, simbolo, fotoUri) else mostrarErrores = true
                 },
             ) { Text(stringResource(R.string.accion_guardar)) }
-            TextButton(onClick = onCancelar) { Text(stringResource(R.string.accion_cancelar)) }
+            TextButton(onClick = {
+                if (hayCambios) confirmarDescartarCambios = true else onCancelar()
+            }) { Text(stringResource(R.string.accion_cancelar)) }
         }
+    }
+
+    if (confirmarDescartarCambios) {
+        AlertDialog(
+            onDismissRequest = { confirmarDescartarCambios = false },
+            title = { Text(stringResource(R.string.cambios_sin_guardar_titulo)) },
+            text = { Text(stringResource(R.string.trabajo_descartar_cambios_mensaje)) },
+            confirmButton = {
+                TextButton(onClick = { confirmarDescartarCambios = false }) {
+                    Text(stringResource(R.string.accion_seguir_editando))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    confirmarDescartarCambios = false
+                    onCancelar()
+                }) {
+                    Text(stringResource(R.string.accion_descartar_cambios))
+                }
+            },
+        )
     }
 }

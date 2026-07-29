@@ -56,6 +56,7 @@ fun AnioScreen(
     trabajoId: Long,
     onMesSeleccionado: (Int, Int) -> Unit,
     onVolver: () -> Unit,
+    onAbrirPlantillas: () -> Unit,
     viewModel: AnioViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val hoy = LocalDate.now()
@@ -86,6 +87,9 @@ fun AnioScreen(
                         TextButton(onClick = { anioSeleccionado = hoy.year }) {
                             Text(stringResource(R.string.anio_hoy))
                         }
+                    }
+                    TextButton(onClick = onAbrirPlantillas) {
+                        Text(stringResource(R.string.plantillas_titulo))
                     }
                 },
             )
@@ -196,4 +200,4 @@ fun AnioScreen(
 }
 
 private fun nombreMesCorto(mes: Int, locale: Locale): String =
-    Month.of(mes).getDisplayName(TextStyle.SHORT, locale).replaceFirstChar { it.uppercase(locale) }
+    Month.of(mes).getDisplayName(TextStyle.SHORT_STANDALONE, locale).replaceFirstChar { it.uppercase(locale) }

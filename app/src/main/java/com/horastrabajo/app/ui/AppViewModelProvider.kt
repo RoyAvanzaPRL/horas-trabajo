@@ -9,6 +9,7 @@ import com.horastrabajo.app.ui.ajustes.AjustesViewModel
 import com.horastrabajo.app.ui.anio.AnioViewModel
 import com.horastrabajo.app.ui.entrada.EntradaFormViewModel
 import com.horastrabajo.app.ui.mes.MesViewModel
+import com.horastrabajo.app.ui.plantillas.PlantillasViewModel
 import com.horastrabajo.app.ui.resumen.ResumenViewModel
 import com.horastrabajo.app.ui.trabajos.TrabajosViewModel
 
@@ -48,6 +49,7 @@ object AppViewModelProvider {
                 entradaHorasRepository = horasTrabajoApp().entradaHorasRepository,
                 tarifaMensualRepository = horasTrabajoApp().tarifaMensualRepository,
                 dineroExtraRepository = horasTrabajoApp().dineroExtraRepository,
+                plantillaRepository = horasTrabajoApp().plantillaRepository,
             )
         }
         initializer {
@@ -59,6 +61,11 @@ object AppViewModelProvider {
                 entradaHorasRepository = horasTrabajoApp().entradaHorasRepository,
                 tarifaMensualRepository = horasTrabajoApp().tarifaMensualRepository,
                 dineroExtraRepository = horasTrabajoApp().dineroExtraRepository,
+            )
+        }
+        initializer {
+            PlantillasViewModel(
+                plantillaRepository = horasTrabajoApp().plantillaRepository,
             )
         }
     }

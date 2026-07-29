@@ -27,8 +27,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,8 +62,9 @@ fun EntradaFormSheet(
     entradasExistentes: List<EntradaHoras>,
     onGuardar: (EntradaHoras) -> Unit,
     onEliminar: (EntradaHoras) -> Unit,
+    onRestaurar: (EntradaHoras) -> Unit = onGuardar,
     onCerrar: () -> Unit = {},
-    onSolicitudCierreChange: (((() -> Unit)?) -> Unit)? = null,
+    onDirtyChange: (Boolean) -> Unit = {},
 ) {
     var forzarFormulario by remember(fecha, trabajoId) { mutableStateOf(false) }
     var entradaEnEdicion by remember(fecha, trabajoId) { mutableStateOf<EntradaHoras?>(null) }
@@ -91,21 +92,16 @@ fun EntradaFormSheet(
             descartarEdicion()
         }
     }
-    val solicitarCierre: () -> Unit = {
-        if (entradaEnEdicion != null && entradaEditadaTieneCambios) {
-            cerrarTrasDescartarCambios = true
-            confirmarDescartarCambios = true
-        } else {
-            onCerrar()
-        }
-    }
 
-    DisposableEffect(solicitarCierre, onSolicitudCierreChange) {
-        onSolicitudCierreChange?.invoke(solicitarCierre)
-        onDispose { onSolicitudCierreChange?.invoke(null) }
+    LaunchedEffect(entradaEditadaTieneCambios) {
+        onDirtyChange(entradaEditadaTieneCambios && entradaEnEdicion != null)
     }
 
     Box(modifier = Modifier.fillMaxWidth()) {
+        BackHandler(enabled = entradaEnEdicion != null && entradaEditadaTieneCambios) {
+            cerrarTrasDescartarCambios = true
+            confirmarDescartarCambios = true
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -184,7 +180,7 @@ fun EntradaFormSheet(
                             duration = SnackbarDuration.Short,
                         )
                         if (resultado == SnackbarResult.ActionPerformed) {
-                            onGuardar(entrada.copy(id = 0))
+                            onRestaurar(entrada)
                         }
                     }
                 }) { Text(stringResource(R.string.accion_eliminar)) }
@@ -226,7 +222,6 @@ private fun EntradaCheckboxRow(
     onCheckedChange: (Boolean) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    trailing: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -243,7 +238,6 @@ private fun EntradaCheckboxRow(
         Checkbox(checked = checked, onCheckedChange = null)
         Spacer(modifier = Modifier.width(8.dp))
         Text(label, modifier = Modifier.weight(1f))
-        trailing?.invoke()
     }
 }
 
@@ -356,13 +350,18 @@ private fun NuevaEntradaForm(
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        HoraPickerField(stringResource(R.string.entrada_hora_entrada), horaEntrada) { horaEntrada = it }
-        HoraPickerField(stringResource(R.string.entrada_hora_salida), horaSalida) { horaSalida = it }
-        EntradaCheckboxRow(
-            checked = esDiaSiguiente,
-            onCheckedChange = { esDiaSiguiente = it },
-            label = stringResource(R.string.entrada_turno_nocturno),
-        ) {
+        HoraPickerField(stringResource(R.string.entrada_hora_entrada), horaEntrada, onHoraSeleccionada = { horaEntrada = it })
+        HoraPickerField(stringResource(R.string.entrada_hora_salida), horaSalida, onHoraSeleccionada = { horaSalida = it })
+        if (horarioInvalido) {
+            TextoError(stringResource(R.string.entrada_error_horario))
+        }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            EntradaCheckboxRow(
+                modifier = Modifier.weight(1f),
+                checked = esDiaSiguiente,
+                onCheckedChange = { esDiaSiguiente = it },
+                label = stringResource(R.string.entrada_turno_nocturno),
+            )
             IconButton(onClick = { mostrarInfoNocturno = true }) {
                 Icon(
                     Icons.Filled.Info,
@@ -370,17 +369,14 @@ private fun NuevaEntradaForm(
                 )
             }
         }
+        if (seSolapa) {
+            TextoError(stringResource(R.string.entrada_error_solapa))
+        }
         EntradaCheckboxRow(
             checked = usarTarifaCustom,
             onCheckedChange = { usarTarifaCustom = it },
             label = stringResource(R.string.entrada_tarifa_distinta),
         )
-        if (horarioInvalido) {
-            TextoError(stringResource(R.string.entrada_error_horario))
-        }
-        if (seSolapa) {
-            TextoError(stringResource(R.string.entrada_error_solapa))
-        }
         if (usarTarifaCustom) {
             CampoDinero(
                 label = stringResource(R.string.tarifa_campo_precio, simbolo),

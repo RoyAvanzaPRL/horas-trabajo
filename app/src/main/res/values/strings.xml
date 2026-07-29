@@ -5,7 +5,7 @@
     (ver `values-en/` y `values-ca/`).
 -->
 <resources>
-    <string name="app_name" translatable="false">TrackTime</string>
+    <string name="app_name" translatable="false">HourFlow</string>
 
     <!-- Acciones comunes a toda la app -->
     <string name="accion_guardar">Guardar</string>
@@ -22,11 +22,13 @@
     <string name="accion_seguir_editando">Seguir editando</string>
     <string name="accion_descartar_cambios">Descartar cambios</string>
     <string name="cambios_sin_guardar_titulo">Cambios sin guardar</string>
+    <string name="accion_mas_opciones">Más opciones</string>
 
     <!-- Campos de formulario compartidos -->
     <string name="campo_obligatorio">Campo obligatorio</string>
     <string name="campo_numero_invalido">Introduce un número válido, ej. 8,50</string>
     <string name="campo_fecha">Fecha</string>
+    <string name="campo_nombre">Nombre</string>
 
     <!-- Pantalla: Mis Trabajos -->
     <string name="trabajos_titulo">Mis Trabajos</string>
@@ -152,8 +154,53 @@
     <string name="resumen_exportar_jpeg">Exportar JPEG</string>
     <string name="resumen_error_exportar">No se pudo generar el archivo. Inténtalo de nuevo.</string>
 
+    <!-- Plantillas de semana y mes -->
+    <string name="plantillas_titulo">Plantillas</string>
+    <string name="plantillas_tab_semanas">Semanas</string>
+    <string name="plantillas_tab_meses">Meses</string>
+    <string name="plantillas_semanas_vacio">No hay plantillas de semana</string>
+    <string name="plantillas_meses_vacio">No hay plantillas de mes</string>
+    <string name="plantilla_nueva_semana">Nueva plantilla de semana</string>
+    <string name="plantilla_editar_semana">Editar plantilla de semana</string>
+    <string name="plantilla_nuevo_mes">Nueva plantilla de mes</string>
+    <string name="plantilla_editar_mes">Editar plantilla de mes</string>
+    <string name="plantilla_eliminar_titulo">Eliminar plantilla</string>
+    <string name="plantilla_eliminar_mensaje">Se eliminará \"%1$s\". Esta acción no se puede deshacer.</string>
+    <string name="plantilla_dias_laborales">%1$d días laborales</string>
+    <string name="plantilla_semanas_configuradas">%1$d semanas configuradas</string>
+    <string name="plantilla_semana_default">Plantilla base</string>
+    <string name="plantilla_sin_seleccion">Sin selección</string>
+    <string name="plantilla_overrides_semana">Personalización por semana</string>
+    <string name="plantilla_semana_libre">Semana libre</string>
+    <string name="plantilla_usar_base">Usar base</string>
+    <string name="plantilla_picker_vacio">No hay plantillas disponibles</string>
+    <string name="plantilla_aplicar_semana">Aplicar plantilla de semana</string>
+    <string name="plantilla_aplicar_mes">Aplicar plantilla de mes</string>
+    <string name="plantilla_elegir_semana">Elegir plantilla de semana</string>
+    <string name="plantilla_elegir_mes">Elegir plantilla de mes</string>
+
+    <string name="plantilla_cambios_semana_mensaje">Has cambiado esta plantilla de semana. ¿Quieres seguir editando o descartar los cambios?</string>
+    <string name="plantilla_cambios_mes_mensaje">Has cambiado esta plantilla de mes. ¿Quieres seguir editando o descartar los cambios?</string>
+    <string name="tarifa_descartar_cambios_mensaje">Has cambiado la tarifa de este mes. ¿Quieres seguir editando o descartar los cambios?</string>
+    <string name="trabajo_descartar_cambios_mensaje">Has cambiado este trabajo. ¿Quieres seguir editando o descartar los cambios?</string>
+
+    <!-- Diálogo de conflicto al aplicar plantillas -->
+    <string name="conflicto_titulo">Hay entradas existentes</string>
+    <string name="conflicto_mensaje_corto">%1$d días ya tienen entradas registradas (%2$s). ¿Qué quieres hacer?</string>
+    <string name="conflicto_mensaje_largo">%1$d días ya tienen entradas registradas. ¿Qué quieres hacer?</string>
+    <string name="conflicto_reemplazar">Reemplazar todo</string>
+    <string name="conflicto_solo_vacios">Solo días vacíos</string>
+
+    <!-- Mes: limpiar mes -->
+    <string name="mes_limpiar">Limpiar mes</string>
+    <string name="mes_limpiar_titulo">Limpiar mes</string>
+    <string name="mes_limpiar_mensaje">Se eliminarán todas las horas, dinero extra y la tarifa de este mes. Esta acción no se puede deshacer.</string>
+
+    <!-- Mes: cabecera de semana -->
+    <string name="mes_semana_encabezado">%1$s → %2$s</string>
+
     <!-- Contenido de los documentos exportados (PDF y JPEG) -->
-    <string name="export_pie_de_marca">TrackTime — hecho por RoyPM</string>
+    <string name="export_pie_de_marca">HourFlow — hecho por RoyPM</string>
     <string name="export_encabezado">%1$s — %2$s — %3$s %4$d</string>
     <string name="export_tarifa">Tarifa: %1$s</string>
     <string name="export_por_hora">%1$s/hora</string>

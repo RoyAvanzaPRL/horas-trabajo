@@ -8,6 +8,7 @@ import com.horastrabajo.app.data.repository.DineroExtraRepository
 import com.horastrabajo.app.data.repository.DineroExtraRepositoryImpl
 import com.horastrabajo.app.data.repository.EntradaHorasRepository
 import com.horastrabajo.app.data.repository.EntradaHorasRepositoryImpl
+import com.horastrabajo.app.data.repository.PlantillaRepository
 import com.horastrabajo.app.data.repository.TarifaMensualRepository
 import com.horastrabajo.app.data.repository.TarifaMensualRepositoryImpl
 import com.horastrabajo.app.data.repository.TrabajoRepository
@@ -30,6 +31,9 @@ class HorasTrabajoApp : Application() {
     lateinit var dineroExtraRepository: DineroExtraRepository
         private set
 
+    lateinit var plantillaRepository: PlantillaRepository
+        private set
+
     lateinit var jsonBackupManager: JsonBackupManager
         private set
 
@@ -43,7 +47,12 @@ class HorasTrabajoApp : Application() {
         entradaHorasRepository = EntradaHorasRepositoryImpl(database.entradaHorasDao())
         tarifaMensualRepository = TarifaMensualRepositoryImpl(database.tarifaMensualDao())
         dineroExtraRepository = DineroExtraRepositoryImpl(database.dineroExtraDao())
+        plantillaRepository = PlantillaRepository(
+            semanaDao = database.plantillaSemanaDao(),
+            mesDao = database.plantillaMesDao(),
+        )
         jsonBackupManager = JsonBackupManager(
+            database = database,
             trabajoRepository = trabajoRepository,
             entradaHorasRepository = entradaHorasRepository,
             tarifaMensualRepository = tarifaMensualRepository,

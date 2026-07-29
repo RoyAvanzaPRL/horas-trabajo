@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+import java.util.Properties
+
 android {
     namespace = "com.horastrabajo.app"
     compileSdk = 34
@@ -18,10 +20,26 @@ android {
         versionName = "1.3"
     }
 
+    signingConfigs {
+        create("release") {
+            val keystoreFileProp = rootProject.file("keystore.properties")
+            if (keystoreFileProp.exists()) {
+                val props = Properties()
+                keystoreFileProp.inputStream().use { props.load(it) }
+                storeFile = rootProject.file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            val keystoreExists = rootProject.file("keystore.properties").exists()
+            signingConfig = if (keystoreExists) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
 

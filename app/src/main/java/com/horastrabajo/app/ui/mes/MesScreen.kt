@@ -1,6 +1,7 @@
 package com.horastrabajo.app.ui.mes
 
 import androidx.compose.foundation.clickable
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,11 +15,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -49,7 +55,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.setValue
+import androidx.activity.compose.BackHandler
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +70,9 @@ import com.horastrabajo.app.domain.ResumenDia
 import com.horastrabajo.app.domain.ResumenSemana
 import com.horastrabajo.app.domain.model.Dinero
 import com.horastrabajo.app.domain.model.DineroExtra
+import com.horastrabajo.app.domain.model.EstrategiaConflicto
+import com.horastrabajo.app.domain.model.PlantillaMes
+import com.horastrabajo.app.domain.model.PlantillaSemana
 import com.horastrabajo.app.domain.model.formatearHoras
 import com.horastrabajo.app.ui.AppViewModelProvider
 import com.horastrabajo.app.ui.components.CampoDinero
@@ -75,6 +86,11 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.Locale
+
+private sealed interface MesListItem {
+    data class SemanaHeader(val primerDia: LocalDate) : MesListItem
+    data class Dia(val fecha: LocalDate) : MesListItem
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,8 +114,9 @@ fun MesScreen(
     var agregandoDineroExtra by remember { mutableStateOf(false) }
     var dineroExtraEnEdicion by remember { mutableStateOf<DineroExtra?>(null) }
     var dineroExtraAEliminar by remember { mutableStateOf<DineroExtra?>(null) }
-    var solicitudCierreEntradaSheet by remember { mutableStateOf<(() -> Unit)?>(null) }
     var dineroExtraEditadoTieneCambios by remember { mutableStateOf(false) }
+    var tieneCambiosEntrada by remember { mutableStateOf(false) }
+    var mostrarDialogoDescartarEntrada by remember { mutableStateOf(false) }
     var confirmarDescartarDineroExtra by remember { mutableStateOf(false) }
     var cerrarDineroExtraTrasDescartar by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -107,6 +124,31 @@ fun MesScreen(
     val locale = localeActual()
     val textoDineroExtraEliminado = stringResource(R.string.mes_dinero_extra_eliminado)
     val textoDeshacer = stringResource(R.string.accion_deshacer)
+
+    val plantillasSemana by mesViewModel.plantillasSemana.collectAsState()
+    val plantillasMes by mesViewModel.plantillasMes.collectAsState()
+    val conflictoState by mesViewModel.conflictoState.collectAsState()
+    val semanasDelMes by mesViewModel.semanasDelMes.collectAsState()
+
+    var mostrarMenuMes by remember { mutableStateOf(false) }
+    var mostrarDialogoLimpiarMes by remember { mutableStateOf(false) }
+    var mostrarPickerSemana by remember { mutableStateOf(false) }
+    var mostrarPickerMes by remember { mutableStateOf(false) }
+    var semanaParaPicker by remember { mutableStateOf<LocalDate?>(null) }
+
+    val itemsList = remember(yearMonth, semanasDelMes) {
+        val items = mutableListOf<MesListItem>()
+        for (lunes in semanasDelMes) {
+            items.add(MesListItem.SemanaHeader(lunes))
+            for (i in 0..6) {
+                val fecha = lunes.plusDays(i.toLong())
+                if (fecha.monthValue == yearMonth.monthValue && fecha.year == yearMonth.year) {
+                    items.add(MesListItem.Dia(fecha))
+                }
+            }
+        }
+        items
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -128,6 +170,36 @@ fun MesScreen(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.accion_volver),
                         )
+                    }
+                },
+                actions = {
+                    Box {
+                        IconButton(onClick = { mostrarMenuMes = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.accion_mas_opciones))
+                        }
+                        DropdownMenu(expanded = mostrarMenuMes, onDismissRequest = { mostrarMenuMes = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.plantilla_aplicar_mes)) },
+                                onClick = {
+                                    mostrarMenuMes = false
+                                    mostrarPickerMes = true
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.mes_boton_resumen)) },
+                                onClick = {
+                                    mostrarMenuMes = false
+                                    onVerResumen()
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.mes_limpiar)) },
+                                onClick = {
+                                    mostrarMenuMes = false
+                                    mostrarDialogoLimpiarMes = true
+                                },
+                            )
+                        }
                     }
                 },
             )
@@ -181,19 +253,38 @@ fun MesScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items((1..yearMonth.lengthOfMonth()).toList()) { numeroDia ->
-                    val fecha = yearMonth.atDay(numeroDia)
-                    val diaResumen = resumenActual.dias.firstOrNull { it.fecha == fecha }
-                    val semana = resumenActual.semanas.firstOrNull { it.ultimoDiaVisible == fecha }
-                    DiaRow(
-                        fecha = fecha,
-                        diaResumen = diaResumen,
-                        resumenSemana = semana,
-                        simbolo = simbolo,
-                        locale = locale,
-                        onClick = { diaSeleccionado = fecha },
-                    )
-                    HorizontalDivider()
+                items(itemsList, key = {
+                    when (it) {
+                        is MesListItem.SemanaHeader -> "hdr_${it.primerDia}"
+                        is MesListItem.Dia -> "dia_${it.fecha}"
+                    }
+                }) { item ->
+                    when (item) {
+                        is MesListItem.SemanaHeader -> {
+                            SemanaHeaderRow(
+                                primerDia = item.primerDia,
+                                locale = locale,
+                                onAplicarPlantilla = {
+                                    semanaParaPicker = item.primerDia
+                                    mostrarPickerSemana = true
+                                },
+                            )
+                            HorizontalDivider()
+                        }
+                        is MesListItem.Dia -> {
+                            val diaResumen = resumenActual.dias.firstOrNull { it.fecha == item.fecha }
+                            val semana = resumenActual.semanas.firstOrNull { it.ultimoDiaVisible == item.fecha }
+                            DiaRow(
+                                fecha = item.fecha,
+                                diaResumen = diaResumen,
+                                resumenSemana = semana,
+                                simbolo = simbolo,
+                                locale = locale,
+                                onClick = { diaSeleccionado = item.fecha },
+                            )
+                            HorizontalDivider()
+                        }
+                    }
                 }
 
                 item {
@@ -289,9 +380,26 @@ fun MesScreen(
     diaSeleccionado?.let { fecha ->
         LaunchedEffect(fecha) { entradaFormViewModel.cargar(trabajoId, fecha) }
         val entradasDelDia by entradaFormViewModel.entradasDelDia.collectAsState()
+
+        var latestConfirmValueChange by remember { mutableStateOf({ _: SheetValue -> true }) }
+        val entradaSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { targetValue -> latestConfirmValueChange(targetValue) },
+        )
+        SideEffect {
+            latestConfirmValueChange = { targetValue ->
+                if (targetValue == SheetValue.Hidden && tieneCambiosEntrada) {
+                    mostrarDialogoDescartarEntrada = true
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+
         ModalBottomSheet(
-            onDismissRequest = { solicitudCierreEntradaSheet?.invoke() ?: run { diaSeleccionado = null } },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            onDismissRequest = { diaSeleccionado = null },
+            sheetState = entradaSheetState,
         ) {
             EntradaFormSheet(
                 fecha = fecha,
@@ -300,10 +408,32 @@ fun MesScreen(
                 entradasExistentes = entradasDelDia,
                 onGuardar = { entradaFormViewModel.guardar(it) },
                 onEliminar = { entradaFormViewModel.eliminar(it) },
+                onRestaurar = { entradaFormViewModel.restaurar(it) },
                 onCerrar = { diaSeleccionado = null },
-                onSolicitudCierreChange = { solicitudCierreEntradaSheet = it },
+                onDirtyChange = { tieneCambiosEntrada = it },
             )
         }
+    }
+
+    if (mostrarDialogoDescartarEntrada) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoDescartarEntrada = false },
+            title = { Text(stringResource(R.string.cambios_sin_guardar_titulo)) },
+            text = { Text(stringResource(R.string.entrada_descartar_cambios_mensaje)) },
+            confirmButton = {
+                TextButton(onClick = { mostrarDialogoDescartarEntrada = false }) {
+                    Text(stringResource(R.string.accion_seguir_editando))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarDialogoDescartarEntrada = false
+                    diaSeleccionado = null
+                }) {
+                    Text(stringResource(R.string.accion_descartar_cambios))
+                }
+            },
+        )
     }
 
     if (editandoTarifa) {
@@ -343,7 +473,7 @@ fun MesScreen(
                             duration = SnackbarDuration.Short,
                         )
                         if (resultado == SnackbarResult.ActionPerformed) {
-                            mesViewModel.agregarDineroExtra(extra.copy(id = 0))
+                            mesViewModel.restaurarDineroExtra(extra)
                         }
                     }
                 }) { Text(stringResource(R.string.accion_eliminar)) }
@@ -394,30 +524,152 @@ fun MesScreen(
         )
     }
 
-    if (agregandoDineroExtra || dineroExtraEnEdicion != null) {
-        val extraEnEdicion = dineroExtraEnEdicion
+    if (mostrarPickerSemana && semanaParaPicker != null) {
+        val primerDia = semanaParaPicker!!
         ModalBottomSheet(
-            onDismissRequest = { solicitarCerrarFormularioDineroExtra(cerrarSheet = true) },
+            onDismissRequest = { mostrarPickerSemana = false; semanaParaPicker = null },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         ) {
-            DineroExtraFormContent(
-                dineroExtraInicial = extraEnEdicion,
-                fechaPorDefecto = extraEnEdicion?.fecha
-                    ?: LocalDate.now().let { if (YearMonth.from(it) == yearMonth) it else yearMonth.atDay(1) },
-                onDirtyChange = { dineroExtraEditadoTieneCambios = it },
-                onConfirmar = { fecha, monto, descripcion ->
-                    mesViewModel.guardarDineroExtra(
-                        DineroExtra(
-                            id = extraEnEdicion?.id ?: 0L,
-                            trabajoId = trabajoId,
-                            fecha = fecha,
-                            monto = monto,
-                            descripcion = descripcion,
-                        )
-                    )
-                    cerrarFormularioDineroExtra()
+            PlantillaPickerSheet(
+                titulo = stringResource(R.string.plantilla_elegir_semana),
+                plantillas = plantillasSemana,
+                onSeleccionar = { item ->
+                    if (item is PlantillaSemana) {
+                        mesViewModel.aplicarPlantillaSemana(item, primerDia)
+                    }
+                    mostrarPickerSemana = false
+                    semanaParaPicker = null
                 },
-                onCancelar = { solicitarCerrarFormularioDineroExtra(cerrarSheet = false) },
+                onDismiss = { mostrarPickerSemana = false; semanaParaPicker = null },
+            )
+        }
+    }
+
+    if (mostrarPickerMes) {
+        ModalBottomSheet(
+            onDismissRequest = { mostrarPickerMes = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        ) {
+            PlantillaPickerSheet(
+                titulo = stringResource(R.string.plantilla_elegir_mes),
+                plantillas = plantillasMes,
+                onSeleccionar = { item ->
+                    if (item is PlantillaMes) {
+                        mesViewModel.aplicarPlantillaMes(item, anio, mes)
+                    }
+                    mostrarPickerMes = false
+                },
+                onDismiss = { mostrarPickerMes = false },
+            )
+        }
+    }
+
+    if (mostrarDialogoLimpiarMes) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoLimpiarMes = false },
+            title = { Text(stringResource(R.string.mes_limpiar_titulo)) },
+            text = { Text(stringResource(R.string.mes_limpiar_mensaje)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarDialogoLimpiarMes = false
+                    mesViewModel.limpiarMes()
+                }) { Text(stringResource(R.string.accion_eliminar)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarDialogoLimpiarMes = false }) {
+                    Text(stringResource(R.string.accion_cancelar))
+                }
+            },
+        )
+    }
+
+    conflictoState?.let { estado ->
+        ConflictoDialog(
+            fechasConflicto = estado.fechasConflicto,
+            onReemplazar = { mesViewModel.resolverConflicto(EstrategiaConflicto.REEMPLAZAR_TODO) },
+            onSoloDiasVacios = { mesViewModel.resolverConflicto(EstrategiaConflicto.SOLO_DIAS_VACIOS) },
+            onCancelar = { mesViewModel.resolverConflicto(EstrategiaConflicto.CANCELAR) },
+        )
+    }
+
+    if (agregandoDineroExtra || dineroExtraEnEdicion != null) {
+        val extraEnEdicion = dineroExtraEnEdicion
+
+        var latestDineroExtraConfirmChange by remember { mutableStateOf({ _: SheetValue -> true }) }
+        val dineroExtraSheetState = rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { targetValue -> latestDineroExtraConfirmChange(targetValue) },
+        )
+        SideEffect {
+            latestDineroExtraConfirmChange = { targetValue ->
+                if (targetValue == SheetValue.Hidden && dineroExtraEnEdicion != null && dineroExtraEditadoTieneCambios) {
+                    cerrarDineroExtraTrasDescartar = true
+                    confirmarDescartarDineroExtra = true
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+        ModalBottomSheet(
+            onDismissRequest = { cerrarFormularioDineroExtra() },
+            sheetState = dineroExtraSheetState,
+        ) {
+            Box {
+                BackHandler(enabled = dineroExtraEnEdicion != null && dineroExtraEditadoTieneCambios) {
+                    cerrarDineroExtraTrasDescartar = true
+                    confirmarDescartarDineroExtra = true
+                }
+                DineroExtraFormContent(
+                    dineroExtraInicial = extraEnEdicion,
+                    fechaPorDefecto = extraEnEdicion?.fecha
+                        ?: LocalDate.now().let { if (YearMonth.from(it) == yearMonth) it else yearMonth.atDay(1) },
+                    onDirtyChange = { dineroExtraEditadoTieneCambios = it },
+                    onConfirmar = { fecha, monto, descripcion ->
+                        mesViewModel.guardarDineroExtra(
+                            DineroExtra(
+                                id = extraEnEdicion?.id ?: 0L,
+                                trabajoId = trabajoId,
+                                fecha = fecha,
+                                monto = monto,
+                                descripcion = descripcion,
+                            )
+                        )
+                        cerrarFormularioDineroExtra()
+                    },
+                    onCancelar = { solicitarCerrarFormularioDineroExtra(cerrarSheet = false) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SemanaHeaderRow(
+    primerDia: LocalDate,
+    locale: Locale,
+    onAplicarPlantilla: () -> Unit,
+) {
+    val ultimoDia = primerDia.plusDays(6)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(
+                R.string.mes_semana_encabezado,
+                "${primerDia.dayOfMonth} ${primerDia.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)}",
+                "${ultimoDia.dayOfMonth} ${ultimoDia.dayOfWeek.getDisplayName(TextStyle.SHORT, locale)}",
+            ),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f),
+        )
+        IconButton(onClick = onAplicarPlantilla) {
+            Icon(
+                Icons.Default.DateRange,
+                contentDescription = stringResource(R.string.plantilla_aplicar_semana),
+                tint = MaterialTheme.colorScheme.primary,
             )
         }
     }
@@ -622,4 +874,4 @@ private fun DineroExtraFormContent(
 }
 
 private fun nombreMes(mes: Int, locale: Locale): String =
-    java.time.Month.of(mes).getDisplayName(TextStyle.FULL, locale).replaceFirstChar { it.uppercase(locale) }
+    java.time.Month.of(mes).getDisplayName(TextStyle.FULL_STANDALONE, locale).replaceFirstChar { it.uppercase(locale) }

@@ -38,4 +38,8 @@ class EntradaFormViewModel(private val entradaHorasRepository: EntradaHorasRepos
     fun eliminar(entrada: EntradaHoras) {
         viewModelScope.launch { entradaHorasRepository.eliminar(entrada) }
     }
+
+    fun restaurar(entrada: EntradaHoras) {
+        viewModelScope.launch { entradaHorasRepository.restaurar(entrada) }
+    }
 }

@@ -17,11 +17,13 @@
     <string name="accion_seguir_editando">Segueix editant</string>
     <string name="accion_descartar_cambios">Descarta els canvis</string>
     <string name="cambios_sin_guardar_titulo">Canvis sense desar</string>
+    <string name="accion_mas_opciones">Més opcions</string>
 
     <!-- Camps de formulari compartits -->
     <string name="campo_obligatorio">Camp obligatori</string>
     <string name="campo_numero_invalido">Introdueix un número vàlid, p. ex. 8,50</string>
     <string name="campo_fecha">Data</string>
+    <string name="campo_nombre">Nom</string>
 
     <!-- Pantalla: Les meves feines -->
     <string name="trabajos_titulo">Les meves feines</string>
@@ -147,8 +149,53 @@
     <string name="resumen_exportar_jpeg">Exporta a JPEG</string>
     <string name="resumen_error_exportar">No s\'ha pogut generar el fitxer. Torna-ho a provar.</string>
 
+    <!-- Plantilles de setmana i mes -->
+    <string name="plantillas_titulo">Plantilles</string>
+    <string name="plantillas_tab_semanas">Setmanes</string>
+    <string name="plantillas_tab_meses">Mesos</string>
+    <string name="plantillas_semanas_vacio">No hi ha plantilles de setmana</string>
+    <string name="plantillas_meses_vacio">No hi ha plantilles de mes</string>
+    <string name="plantilla_nueva_semana">Nova plantilla de setmana</string>
+    <string name="plantilla_editar_semana">Edita la plantilla de setmana</string>
+    <string name="plantilla_nuevo_mes">Nova plantilla de mes</string>
+    <string name="plantilla_editar_mes">Edita la plantilla de mes</string>
+    <string name="plantilla_eliminar_titulo">Elimina la plantilla</string>
+    <string name="plantilla_eliminar_mensaje">S\'eliminarà \"%1$s\". Aquesta acció no es pot desfer.</string>
+    <string name="plantilla_dias_laborales">%1$d dies laborables</string>
+    <string name="plantilla_semanas_configuradas">%1$d setmanes configurades</string>
+    <string name="plantilla_semana_default">Plantilla base</string>
+    <string name="plantilla_sin_seleccion">Sense selecció</string>
+    <string name="plantilla_overrides_semana">Personalització per setmana</string>
+    <string name="plantilla_semana_libre">Setmana lliure</string>
+    <string name="plantilla_usar_base">Usa la base</string>
+    <string name="plantilla_picker_vacio">No hi ha plantilles disponibles</string>
+    <string name="plantilla_aplicar_semana">Aplica la plantilla de setmana</string>
+    <string name="plantilla_aplicar_mes">Aplica la plantilla de mes</string>
+    <string name="plantilla_elegir_semana">Tria la plantilla de setmana</string>
+    <string name="plantilla_elegir_mes">Tria la plantilla de mes</string>
+
+    <string name="plantilla_cambios_semana_mensaje">Has canviat aquesta plantilla de setmana. Vols seguir editant o descartar els canvis?</string>
+    <string name="plantilla_cambios_mes_mensaje">Has canviat aquesta plantilla de mes. Vols seguir editant o descartar els canvis?</string>
+    <string name="tarifa_descartar_cambios_mensaje">Has canviat la tarifa d\'aquest mes. Vols seguir editant o descartar els canvis?</string>
+    <string name="trabajo_descartar_cambios_mensaje">Has canviat aquesta feina. Vols seguir editant o descartar els canvis?</string>
+
+    <!-- Diàleg de conflicte en aplicar plantilles -->
+    <string name="conflicto_titulo">Hi ha entrades existents</string>
+    <string name="conflicto_mensaje_corto">%1$d dies ja tenen entrades registrades (%2$s). Què vols fer?</string>
+    <string name="conflicto_mensaje_largo">%1$d dies ja tenen entrades registrades. Què vols fer?</string>
+    <string name="conflicto_reemplazar">Reemplaça-ho tot</string>
+    <string name="conflicto_solo_vacios">Només dies buits</string>
+
+    <!-- Mes: netejar mes -->
+    <string name="mes_limpiar">Netejar mes</string>
+    <string name="mes_limpiar_titulo">Netejar mes</string>
+    <string name="mes_limpiar_mensaje">S\'eliminaran totes les hores, diners extra i la tarifa d\'aquest mes. Aquesta acció no es pot desfer.</string>
+
+    <!-- Mes: capçalera de setmana -->
+    <string name="mes_semana_encabezado">%1$s → %2$s</string>
+
     <!-- Contingut dels documents exportats (PDF i JPEG) -->
-    <string name="export_pie_de_marca">TrackTime — fet per RoyPM</string>
+    <string name="export_pie_de_marca">HourFlow — fet per RoyPM</string>
     <string name="export_encabezado">%1$s — %2$s — %3$s %4$d</string>
     <string name="export_tarifa">Tarifa: %1$s</string>
     <string name="export_por_hora">%1$s/hora</string>

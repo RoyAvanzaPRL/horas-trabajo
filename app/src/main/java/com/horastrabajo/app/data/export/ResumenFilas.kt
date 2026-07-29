@@ -33,7 +33,7 @@ data class FilaResumen(
 fun construirFilasResumen(resumen: ResumenMensual, context: Context): List<FilaResumen> {
     val simbolo = resumen.trabajo.simboloMoneda
     val locale = context.resources.configuration.locales[0] ?: Locale.getDefault()
-    val nombreMes = java.time.Month.of(resumen.mes).getDisplayName(TextStyle.FULL, locale)
+    val nombreMes = java.time.Month.of(resumen.mes).getDisplayName(TextStyle.FULL_STANDALONE, locale)
         .replaceFirstChar { it.uppercase(locale) }
     val filas = mutableListOf<FilaResumen>()
 

@@ -6,8 +6,9 @@ import androidx.core.content.FileProvider
 import com.horastrabajo.app.R
 import java.io.File
 
+/** App-specific external storage: persistente, no lo borra el sistema al limpiar cache. */
 fun directorioExports(context: Context): File =
-    File(context.cacheDir, "exports").apply { mkdirs() }
+    File(context.getExternalFilesDir(null), "exports").apply { mkdirs() }
 
 fun compartirArchivo(context: Context, archivo: File, mimeType: String) {
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", archivo)

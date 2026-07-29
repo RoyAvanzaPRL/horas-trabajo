@@ -17,11 +17,13 @@
     <string name="accion_seguir_editando">Keep editing</string>
     <string name="accion_descartar_cambios">Discard changes</string>
     <string name="cambios_sin_guardar_titulo">Unsaved changes</string>
+    <string name="accion_mas_opciones">More options</string>
 
     <!-- Shared form fields -->
     <string name="campo_obligatorio">Required field</string>
     <string name="campo_numero_invalido">Enter a valid number, e.g. 8,50</string>
     <string name="campo_fecha">Date</string>
+    <string name="campo_nombre">Name</string>
 
     <!-- Screen: My Jobs -->
     <string name="trabajos_titulo">My Jobs</string>
@@ -147,8 +149,53 @@
     <string name="resumen_exportar_jpeg">Export JPEG</string>
     <string name="resumen_error_exportar">The file could not be generated. Please try again.</string>
 
+    <!-- Week and month templates -->
+    <string name="plantillas_titulo">Templates</string>
+    <string name="plantillas_tab_semanas">Weeks</string>
+    <string name="plantillas_tab_meses">Months</string>
+    <string name="plantillas_semanas_vacio">No week templates</string>
+    <string name="plantillas_meses_vacio">No month templates</string>
+    <string name="plantilla_nueva_semana">New week template</string>
+    <string name="plantilla_editar_semana">Edit week template</string>
+    <string name="plantilla_nuevo_mes">New month template</string>
+    <string name="plantilla_editar_mes">Edit month template</string>
+    <string name="plantilla_eliminar_titulo">Delete template</string>
+    <string name="plantilla_eliminar_mensaje">\"%1$s\" will be deleted. This action cannot be undone.</string>
+    <string name="plantilla_dias_laborales">%1$d working days</string>
+    <string name="plantilla_semanas_configuradas">%1$d configured weeks</string>
+    <string name="plantilla_semana_default">Default template</string>
+    <string name="plantilla_sin_seleccion">No selection</string>
+    <string name="plantilla_overrides_semana">Per-week overrides</string>
+    <string name="plantilla_semana_libre">Free week</string>
+    <string name="plantilla_usar_base">Use default</string>
+    <string name="plantilla_picker_vacio">No templates available</string>
+    <string name="plantilla_aplicar_semana">Apply week template</string>
+    <string name="plantilla_aplicar_mes">Apply month template</string>
+    <string name="plantilla_elegir_semana">Choose week template</string>
+    <string name="plantilla_elegir_mes">Choose month template</string>
+
+    <string name="plantilla_cambios_semana_mensaje">You changed this week template. Do you want to keep editing or discard the changes?</string>
+    <string name="plantilla_cambios_mes_mensaje">You changed this month template. Do you want to keep editing or discard the changes?</string>
+    <string name="tarifa_descartar_cambios_mensaje">You changed the rate for this month. Do you want to keep editing or discard the changes?</string>
+    <string name="trabajo_descartar_cambios_mensaje">You changed this job. Do you want to keep editing or discard the changes?</string>
+
+    <!-- Conflict dialog when applying templates -->
+    <string name="conflicto_titulo">Existing entries found</string>
+    <string name="conflicto_mensaje_corto">%1$d days already have entries (%2$s). What do you want to do?</string>
+    <string name="conflicto_mensaje_largo">%1$d days already have entries. What do you want to do?</string>
+    <string name="conflicto_reemplazar">Replace all</string>
+    <string name="conflicto_solo_vacios">Only empty days</string>
+
+    <!-- Month: clear month -->
+    <string name="mes_limpiar">Clear month</string>
+    <string name="mes_limpiar_titulo">Clear month</string>
+    <string name="mes_limpiar_mensaje">All hours, extra money and the rate for this month will be deleted. This action cannot be undone.</string>
+
+    <!-- Month: week header -->
+    <string name="mes_semana_encabezado">%1$s → %2$s</string>
+
     <!-- Contents of the exported documents (PDF and JPEG) -->
-    <string name="export_pie_de_marca">TrackTime — made by RoyPM</string>
+    <string name="export_pie_de_marca">HourFlow — made by RoyPM</string>
     <string name="export_encabezado">%1$s — %2$s — %3$s %4$d</string>
     <string name="export_tarifa">Rate: %1$s</string>
     <string name="export_por_hora">%1$s/hour</string>

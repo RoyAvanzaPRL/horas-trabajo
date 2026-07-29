@@ -37,4 +37,7 @@ interface TarifaMensualDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(tarifas: List<TarifaMensualEntity>)
+
+    @Query("DELETE FROM tarifa_mensual WHERE trabajoId = :trabajoId AND anio = :anio AND mes = :mes")
+    suspend fun deleteByMes(trabajoId: Long, anio: Int, mes: Int)
 }

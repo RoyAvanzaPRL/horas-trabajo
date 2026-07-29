@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -35,14 +36,19 @@ private val FORMATO_HORA: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HoraPickerField(etiqueta: String, hora: LocalTime, onHoraSeleccionada: (LocalTime) -> Unit) {
+fun HoraPickerField(
+    etiqueta: String,
+    hora: LocalTime,
+    onHoraSeleccionada: (LocalTime) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var mostrarDialogo by remember { mutableStateOf(false) }
 
-    Column {
+    Column(modifier = modifier) {
         Text(etiqueta, style = MaterialTheme.typography.labelMedium)
         OutlinedButton(
             onClick = { mostrarDialogo = true },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().width(120.dp),
         ) {
             Text(hora.format(FORMATO_HORA))
         }

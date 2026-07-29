@@ -36,4 +36,7 @@ interface DineroExtraDao {
 
     @Delete
     suspend fun delete(dineroExtra: DineroExtraEntity)
+
+    @Query("DELETE FROM dinero_extra WHERE trabajoId = :trabajoId AND fecha BETWEEN :desde AND :hasta")
+    suspend fun deleteByTrabajoYRango(trabajoId: Long, desde: LocalDate, hasta: LocalDate)
 }
